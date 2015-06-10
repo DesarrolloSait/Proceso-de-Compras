@@ -1,0 +1,4331 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<VFPData>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>Screen</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties/>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1>VERSION =   3.00</reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>884117559</timestamp>
+		<class>dataenvironment</class>
+		<classloc/>
+		<baseclass>dataenvironment</baseclass>
+		<objname>Dataenvironment</objname>
+		<parent/>
+		<properties>Name = "Dataenvironment"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2>1</reserved2>
+		<reserved3/>
+		<reserved4>2</reserved4>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QO</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>formamsl</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>form</baseclass>
+		<objname>Formamsl1</objname>
+		<parent/>
+		<properties>Height = 518
+Width = 664
+DoCreate = .T.
+Caption = "Modificar Orden de Compra"
+KeyPreview = .T.
+WindowState = 0
+Name = "Formamsl1"
+Marco.ZOrderSet = 2
+Marco.Name = "Marco"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Init
+
+iF Not Opendbf ('Provedor','Numprov')Or;
+	Not Opendbf ('Docum','Tiponum') or ;
+	Not Opendbf ('Movim','Tiponumpar') or;
+	Not Opendbf ('Arts','Numart') or;
+	Not Opendbf ('Usuarios','Numuser') or;
+	Not Opendbf ('Almacen','NumAlm')or;
+	Not Opendbf ('Minv','Tiponumpar')or;
+	Not Opendbf ('Entradas','TipoNumpar')or;
+	Not Opendbf ('Multialm','ArtAlm')or;
+	Not Opendbf ('Series','ArtSerie') or;
+	Not Opendbf	('FormaPago','NumFormP')
+	Return .f.
+Endif
+
+*Cursor para temporal
+Create Cursor Temp (;
+	Numart		C(20), ;		
+	Desc		C(60),;
+	Cant		N(12,4),;
+	Pend		N(12,4),;
+	Unidad		C(5),;
+	Precio		N(12,4),;
+	Pjedesc 	N(12,4),;
+	Impuesto1 	N(12,4),;
+	Impuesto2 	N(12,4),;
+	Importe 	N(12,4),;
+	Numpar		C(3),;
+	DocAnt		C(15),;
+	Series		M(10))
+	
+Sele temp
+Index on numpar tag numpar
+INDEX ON NUMART TAG NUMART
+SET ORDER TO NUMPAR
+
+*Cursor Datos Extra
+Create Cursor Tempext (;
+	Dato		C(50),;		
+	Valor		C(50))
+
+*Cursor para Series
+Create Cursor TempgSer (;
+	Serie		C(30))
+	
+	Sele TempgSer	
+	FOR I= 1 TO 50
+		APPEND BLANK
+	ENDFOR
+	GO TOP
+
+*Cursor para Series para validaciones
+Create Cursor TempgSerVal (;
+	Serie		C(30))
+		
+*Cursor Grrid Documentos
+Create Cursor TempgOrd (;	
+		Numdoc		 C(10),;
+		Fecha 		 D(8),;
+		Numprov		 C(10),;
+		NomProv	     C(30),;
+		Importe  	 N(12,2),;
+		Impuesto1    N(12,2),;
+		Impuesto2    N(12,2),;
+		Divisa		 C(1),;
+		STATUS  	 C(20),;
+		Total		 N(12,2))
+
+*Cursor Forma Pago
+Create Cursor Pago2(;
+	NumFormP	C(5),;		
+	Desc		C(30))
+
+Sele Pago2
+INDEX ON NumFormP TAG NumFormP
+	
+* IniCiawsliza la variable donde se almacena el subtotal de cada factura
+Thisform.nSubTotal = 0
+
+	* Muestra los datos de TEMP
+	With ThisForm.Grid1
+		.RecordSourceType = 1
+		.RecordSource = 'Temp'
+		.Column1.ControlSource = 'Temp.NUMART'
+		.Column2.ControlSource = 'Temp.DESC'
+		.Column3.ControlSource = 'Temp.CANT'
+		.Column4.ControlSource = 'Temp.UNIDAD'
+		.Column5.ControlSource = 'Temp.PRECIO'
+		.Column6.ControlSource = 'Temp.pjedesc'
+		.Column7.ControlSource = 'Temp.impuesto1'
+		.Column8.ControlSource = 'Temp.IMPORTE'		
+	EndWith
+	
+	* Muestra los datos de TEMP
+	With ThisForm.Grid2
+		.RecordSourceType = 1
+		.RecordSource = 'Tempext'
+		.Column1.ControlSource = 'Tempext.dato'
+		.Column2.ControlSource = 'Tempext.valor'		
+	EndWith
+	
+	*Grid para proveedores
+	Thisform.LockScreen = .T.
+	With ThisForm.Grid3
+		.RecordSourceType = 1
+		Select TempgOrd
+		Go Bott
+		for i= 1 to 15
+			if not bof()
+				skip -1
+			endif
+		endfor
+		.RecordSource = 'TempgOrd'
+		.Column1.ControlSource = 'Allt(TempgOrd.NUMDOC)'
+		.Column2.ControlSource = 'MEXDATE2(TempgOrd.FECHA)'
+		.Column3.ControlSource = 'TempgOrd.Nomprov'
+		.Column4.ControlSource = 'TempgOrd.Importe'
+		.Column5.ControlSource = 'TempgOrd.Impuesto1'
+		.Column6.ControlSource = 'TempgOrd.Divisa'
+		.Column8.ControlSource = 'TempgOrd.Total'
+		.Setfocus
+		.Refresh
+	EndWith
+	Thisform.LockScreen = .F.
+	
+	*Grid para proveedores
+	Thisform.LockScreen = .T.
+	With ThisForm.Grid4
+		.RecordSourceType = 1
+		.RecordSource = 'TempgSer'
+		.Column1.ControlSource = 'TempgSer.Serie'
+		.Setfocus
+		.Refresh
+	EndWith
+	Thisform.LockScreen = .F.
+
+WITH THISFORM
+	
+	*Llenamos la tabla de los datos extra
+	.Extras()
+	.Grid3.Visible = .F.
+	.Grid4.Visible = .F.
+	
+	*Llenamos el combo de formas de pago
+	.llenacombo()
+	
+	* Si no recibe ningun parametro, nModo = 1 Agregar
+	If PCount()==0
+		nModo=1
+	EndIf
+	
+	.Caption = 'Modificando Orden de Compra'
+	.Save.Caption = '\&lt;Modificar'
+	
+	if not opendbf('Cia')
+		Return .F.
+	ENDIF
+	
+	Sele Cia
+	 .TC.VALUE = CIA.TCCREDITO
+	
+	Sele Cia
+	Use		
+	
+	.NTC = thisform.TC.Value
+	
+	.formp.value = 1
+	.NumDocO.SetFocus
+	
+ENDWITH
+
+
+ENDPROC
+PROCEDURE KeyPress
+LPARAMETERS nkeycode,nshiftaltctrl
+
+
+* Cerrar la ventana si presiona [Esc]
+If nKeyCode == 27
+	ThisForm.Release
+EndIf
+ENDPROC
+PROCEDURE Unload
+* Borrar los temporales
+DelAlias('Temp')
+*DelAlias('Temp2')
+DoDefault()
+
+ENDPROC
+PROCEDURE cargartotales
+*** cargartotales
+
+**********************************
+*Calcular totales
+SELE temp
+sum (temp.importe) to thisform.nSubtotal
+SUM (temp.IMPORTE * temp.PJEDESC/100) TO THISFORM.ndescuento
+SUM ((temp.importe - (temp.IMPORTE * temp.PJEDESC/100)) * temp.impuesto1/100) to thisform.nimpuesto
+
+with thisform
+.Subtotal.value= .nSubtotal
+.descuento.value= .ndescuento
+.importe.value = .subtotal.value - .descuento.value
+.iva.value = .nimpuesto
+.total.value = .importe.value + .iva.value
+
+endwith
+THISFORM.GRID1.REFRESH
+ENDPROC
+PROCEDURE extras
+
+*Ponemos los datos solicitados
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Contacto 2'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'E-Mail 2'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Tramitador'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Comprador'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Condiciones de Pago'
+
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Núm. Cot. Proveedor'
+
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Tiempo de Entrega'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Fecha Límite Entrega'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Documento'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Referencia'
+	
+Sele tempext
+append blank
+	Replace tempext.dato	with 'Núm. Cliente'
+ENDPROC
+PROCEDURE llenacombo
+With thisform
+			
+	sele FormaPago
+	Go Top
+	scan
+		sele Pago2
+		append blank
+			Replace NumFormP with FormaPago.NumFormP,;
+					Desc	 with FormaPago.Desc
+	ENDSCAN
+	
+	Sele Pago2
+
+ENDWITH
+ENDPROC
+PROCEDURE moneda
+lPARAMETERS nDivisa
+*** MONEDA
+* cAMBIA LOS PRECIOS DE LA GRID, SI CAMBIA LA MONEDA
+
+Sele temp
+
+	DO CASE
+		Case ndivisa = 1  &amp;&amp; Pesos
+			Scan		
+				nNuevoPrecio 	= temp.precio
+				replace temp.precio 	with (nNuevoPrecio * thisform.tc.value),;
+						temp.importe 	with	temp.cant * temp.precio
+			endscan
+		
+		Case ndivisa = 2  &amp;&amp; Dolares
+			Scan		
+				nNuevoPrecio 	= temp.precio
+				replace temp.precio 	with (nNuevoPrecio / thisform.tc.value),;
+						temp.importe 	with	temp.cant * temp.precio
+			endscan
+	endcase		
+
+
+
+**********************************
+*Calcular totales
+SELE temp
+sum (temp.importe) to thisform.nSubtotal
+
+with thisform
+	.Subtotal.value= 	.nSubtotal
+	.descuento.value= 	.nSubtotal * 0.28
+	.importe.value	= 	.subtotal.value - .descuento.value
+	.iva.value		=	.importe.value * .15
+	.total.value	= 	.importe.value  + .iva.value
+	
+endwith	
+sele temp
+go top
+thisform.grid1.setfocus
+THISFORM.GRID1.REFRESH
+
+ENDPROC
+PROCEDURE saveorden
+*Guardando los núevos datos de la orden
+With thisform
+	
+	cExtra = ''
+
+	*Sacamos los valores del tempext
+	Sele tempext
+	Go Top
+	Scan
+		
+		cExtra = cExtra + ' ' + allt(tempext.dato) + '=' + allt(tempext.valor) +  chr(13)
+		
+	ENDSCAN
+	
+	*Busqueda en Docum
+	cOrden = ' O' + padl(allt(.NumDocO.value),10)
+	Sele Docum
+	=Seek(cOrden,'Docum','TipoNum')
+	if found()
+		
+		*Reemplazamos la información
+		Sele Docum
+		Replace Importe		with .subtotal.value,;
+				Descuento	with .descuento.value,;
+				Impuesto1	with .IVA.value,;
+				FormPago	with Formapago.NumFormP,;
+				NumProv		with .leecve1.clave.value,;
+				Fecha		with .leefecha1.value,;
+				Divisa		with Iif(.divisa.value = 1,'P','D'),;
+				TC			with .tc.value,;
+				NumAlm		with .leesuc1.NumAlm.value,;
+				Obs			with allt(.obs.value),;
+				DirEnvio	with allt(.direnvio.value),;
+				OtrosDatos	with allt(.otrosdatos.value),;
+				DatosExtra	with cExtra
+				
+	else
+		aviso('No se encontro la información del documento. Verifique la información.')
+		Return .F.
+	ENDIF
+	
+	i = 1
+	For i = 1 to 100 STEP 1
+		cTipoNumPar = ' O' + Padl(Allt(.NumdocO.Value),10) + padl(allt(str(i)),3)
+		Sele Movim
+		=Seek(cTipoNumPar,'Movim','TipoNumPar')
+		if found()
+			EXIT
+		ENDIF
+	ENDFOR
+	
+	*Busqueda en Movim
+	Sele Movim
+	=Seek(cTipoNumPar,'Movim','TipoNumPar')
+	if found()
+		
+		*Borramos el detalle anterior
+		Sele Movim
+		Scan While Movim.TipoDoc + Movim.NumDoc = ' O' + padl(allt(.NumDocO.value),10)
+			
+			Sele Movim
+			Delete
+		
+		ENDSCAN
+		
+		*Guardamos la nueva información
+		i = 0
+		Sele Temp
+		Go Top
+		Scan
+		
+			if not empty(Temp.NumArt) or not empty(temp.desc)
+				*Formamos el numpar
+				i = i + 1
+				cNumPar = padl(allt(str(i)),3)
+				
+				Sele Movim
+				Append Blank
+				Replace TipoDoc		with ' O',;
+						NumDoc		with padl(allt(.NumDocO.value),10),;
+						NumPar		with cNumPar,;
+						NumArt		with padl(allt(Temp.NumArt),20),;
+						Precio		with Temp.Precio,;
+						Cant		with Temp.Cant,;
+						Pend		with Temp.Cant,;
+						Empaque		with 1,;
+						PjeDesc		with Temp.PjeDesc,;
+						Impuesto1	with Temp.Impuesto1,;
+						Impuesto2	with Temp.Impuesto2,;
+						Unidad		with Temp.Unidad,;
+						DocAnt		with Temp.DocAnt,;
+						nSeries		with Temp.Series
+			ENDIF
+					
+		ENDSCAN
+			
+	else
+		
+		*Si no la encontramos, no hacemos nada, solo avisamos al usuario
+		aviso('No se encontro la orden de compra registrada. Verifique la información.')
+	ENDIF
+	
+	*Avisamos que termino el proces
+	aviso('La orden ha sido modificada.')
+	
+ENDWITH
+ENDPROC
+PROCEDURE validainfo
+*
+* Valida la informacion
+*
+WITH THISFORM
+
+	if empty(.NumDocO.value)
+		
+		aviso('No puede omitir el número de orden a modificar. Verifique la información.')
+		.NumDocO.setfocus
+		Return .F.
+		
+	ENDIF
+		
+	*Validamos que la OC no se haya enlazado a algun documento aún	
+	Sele * from Movim where SubStr(Movim.docant,1,12) = ' O' + padl(allt(.NumDocO.value),10) and tipodoc = ' C' into cursor TempVal
+	
+	Sele TempVal
+	nRec = RecCount()
+	
+	if nRec &gt; 0
+		aviso('No puede modificar ordenes de compra enlazadas a otros documentos. Verifique la información. (Orden enlazada a la compra ' + allt(tempval.numdoc) + ')')
+		Return .F.
+	ENDIF
+	
+	*Validamos que por lo menos exista una partida en la tabla
+	i = 0
+	Sele temp
+	Go Top
+	Scan
+		
+		if not empty(temp.numart)
+			i = i + 1
+		ENDIF
+		
+	ENDSCAN
+	
+	if i = 0
+		aviso('No dejo ninguna partida en la tabla de artículos. No puede procesar la información.')
+		Return .F.
+	ENDIF
+	
+ENDWITH
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3>nmodo
+ntc
+nsubtotal
+ndescuento Descuneto del documento
+nimpuesto
+*cargarinfo 
+*saveinfo 
+*cargartotales 
+*validainfo 
+*fabeinst recalcula los costos de fabricación e instalación
+*moneda Cambia todos los precios si cambia la moneda o divisa
+*extras 
+*entrada 
+*salida 
+*llenacombo 
+*saveorden 
+</reserved3>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B70YKT4M</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leefecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leefecha1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 60
+Left = 80
+Width = 96
+Height = 24
+TabIndex = 3
+ZOrderSet = 1
+Name = "Leefecha1"
+Container1.Name = "Container1"
+fecha.Name = "fecha"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B710TV00</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton6</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 477
+Left = 449
+Height = 30
+Width = 90
+Caption = "Imprimir"
+TabIndex = 12
+Visible = .F.
+ZOrderSet = 3
+Name = "Boton6"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+WITH THISFORM
+	
+	*Dettalle
+	Sele temp
+	nNumPar = 0
+	SCAN
+		
+		* Salirme si esta vacio el numero de articulo
+		If Empty(temp.NUMART) and empty(Temp.Desc)
+			DELETE
+			Loop
+		EndIf
+	
+	ENDSCAN
+	
+	Sele temp
+	GO TOP
+	
+	cNumprov = Padl(Allt(.Leecve1.clave.value),5)
+	cNumDocRM = Padl(Allt(.Folio.value),10)
+	
+	SELE MOVIM
+	Go Top
+	=Seek('RM' + Padl(Allt(.Folio.value),10) + '  1','Movim','TipoNumpar')
+	
+	SELE Docum
+	Go Top
+	=Seek('RM' + Padl(Allt(.Folio.value),10),'Docum','Tiponum')
+
+	SELE TEMP
+	Go Top
+	SET RELATION TO 'RM' + cNumDocRM + '  1' INTO MOVIM,;
+					'RM' + cNumDocRM + '  1' INTO MINV,;
+					 PADL(ALLT(NUMART),20) INTO ARTS,;
+					cNumprov INTO PROVEDOR
+
+
+	if Not Opendbf ('Cia')
+		Return .F.
+	Endif
+
+		Sele Cia
+
+		Sele TEMP
+			SENDREP('FtoRm')
+			
+	Sele Cia
+	use	
+	
+	* Cerrar la ventana
+	.Release		
+	
+ENDWITH
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T01509N2</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "\&lt;Fecha"
+Height = 16
+Left = 43
+Top = 62
+Width = 32
+TabIndex = 22
+ZOrderSet = 4
+Name = "Leyenda2"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>save</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 477
+Left = 540
+Height = 30
+Width = 90
+Caption = "\&lt;Grabar"
+TabIndex = 13
+ZOrderSet = 5
+Name = "save"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+WITH THISFORM
+	
+	*Validamos la información
+	if not .validainfo()
+		Return .F.
+	ENDIF
+	
+	*Volvemos a cargar los totales
+	thisform.cargartotales()
+	
+	*Guardamos la información de la OC
+	.saveorden()
+	
+	*Cerramos la ventana
+	thisform.release
+	
+ENDWITH	
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>closebutton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>cerrar</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 477
+Left = 278
+Height = 20
+Width = 50
+Caption = "\&lt;Cerrar"
+TabIndex = 19
+ZOrderSet = 6
+Name = "cerrar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3DN0XDM11</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>leecve</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leeproy</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 529
+Left = 19
+Width = 80
+Height = 24
+Visible = .F.
+TabIndex = 14
+ZOrderSet = 7
+nanchoclave = 10
+calias = proy
+cexprnombre = proy.nombre
+cformabusqueda = busproy
+ldetenersinoexiste = .F.
+Name = "Leeproy"
+Clave.Name = "Clave"
+Nombre.Height = 20
+Nombre.Left = 80
+Nombre.Top = 0
+Nombre.Width = 370
+Nombre.Name = "Nombre"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods>PROCEDURE LostFocus
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YI00BD1F</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "TC"
+Height = 16
+Left = 159
+Top = 85
+Width = 15
+TabIndex = 17
+ZOrderSet = 8
+Name = "Leyenda1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YI00BD1G</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>tc</objname>
+		<parent>Formamsl1</parent>
+		<properties>Alignment = 3
+Value = 0
+Height = 20
+InputMask = "999.9999"
+Left = 176
+TabIndex = 5
+Top = 82
+Width = 60
+ZOrderSet = 9
+Name = "tc"
+</properties>
+		<protected/>
+		<methods>PROCEDURE GotFocus
+* got focus
+
+* Almacena el tipo de cambio
+This.Tag = Str(This.Value,10,4)
+
+ENDPROC
+PROCEDURE Valid
+
+
+* Cambio el TC, actualizar el Total en MN
+If Str(This.Value,10,4)&lt;&gt;This.Tag
+	If Reccount('Temp')&gt;0
+		Select Temp
+	*	Scan
+	*		Replace	precio		With	temp.precio * This.Value
+*		EndScan
+	EndIf
+	
+EndIf
+
+
+
+thisform.ntc = this.value
+
+*thisform.cargartotales()
+*thisform.actprecio()
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>statictext</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Folio</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontBold = .T.
+FontSize = 12
+Alignment = 1
+BorderStyle = 0
+Height = 20
+Left = 530
+TabIndex = 21
+Top = 12
+Width = 100
+ForeColor = 255,0,0
+ZOrderSet = 10
+Name = "Folio"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Subtotal</objname>
+		<parent>Formamsl1</parent>
+		<properties>Alignment = 3
+Value = 0
+Height = 21
+InputMask = "999,999,999.99"
+Left = 550
+ReadOnly = .T.
+TabIndex = 25
+Top = 38
+Width = 90
+ZOrderSet = 11
+Name = "Subtotal"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid1</objname>
+		<parent>Formamsl1</parent>
+		<properties>ColumnCount = 8
+FontSize = 8
+AllowAddNew = .F.
+DeleteMark = .F.
+GridLines = 2
+GridLineWidth = 1
+Height = 200
+Left = 10
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 2
+TabIndex = 15
+Top = 277
+Width = 640
+ZOrderSet = 12
+Name = "Grid1"
+Column1.FontSize = 8
+Column1.Width = 79
+Column1.Format = "!"
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 182
+Column2.Name = "Column2"
+Column3.FontSize = 8
+Column3.ColumnOrder = 3
+Column3.Width = 62
+Column3.Format = "Z"
+Column3.InputMask = "99,999,999.99"
+Column3.Name = "Column3"
+Column4.FontSize = 8
+Column4.ColumnOrder = 4
+Column4.Width = 50
+Column4.ReadOnly = .T.
+Column4.InputMask = ""
+Column4.Name = "Column4"
+Column5.FontSize = 8
+Column5.ColumnOrder = 5
+Column5.Width = 76
+Column5.Format = "Z"
+Column5.InputMask = "999,999,999.99"
+Column5.Name = "Column5"
+Column6.FontSize = 8
+Column6.ColumnOrder = 8
+Column6.Width = 81
+Column6.ReadOnly = .T.
+Column6.Format = "Z"
+Column6.InputMask = "999,999,999.99"
+Column6.Name = "Column8"
+Column7.FontSize = 8
+Column7.ColumnOrder = 6
+Column7.Width = 44
+Column7.Format = "Z"
+Column7.InputMask = "999.99"
+Column7.Name = "Column6"
+Column8.FontSize = 8
+Column8.ColumnOrder = 7
+Column8.Width = 36
+Column8.Format = "Z"
+Column8.InputMask = "99.99"
+Column8.Name = "Column7"
+</properties>
+		<protected/>
+		<methods>PROCEDURE When
+*** WHEN EVENT GRID1
+
+SELE TEMP
+SET ORDER TO NUMPAR
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QO</uniqueid>
+		<timestamp>1167152498</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Clave"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T01509N2</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 0
+BorderStyle = 0
+Format = "!"
+InputMask = ""
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+*
+* Temp.NUMART
+* Presiono F2 en clave
+*
+If nKeyCode = -1
+	=F2BuscArt(This)
+	NoDefault
+EndIf
+
+IF nKeyCode=7  &amp;&amp; BORRAR
+		Select temp
+		Replace	DESC		With	'',;
+				CANT		With	0,;
+				UNIDAD		With	'',;
+				PRECIO		With	0,;
+				PJEDESC		WITH 	0,;
+				impuesto1	with    0,;
+				IMPORTE		With	0
+	
+
+ENDIF
+	
+ENDPROC
+PROCEDURE Valid
+* Temp.NUMART    valid
+*
+With ThisForm
+sele temp
+** si cant es mayor o es que ya se cargó el artículo		
+
+.NTC = thisform.TC.Value
+
+
+If not empty (temp.numart)
+*If Temp.cant = 0
+		* Inicializar variables
+		cLinea= ''
+		nPrecio = 0
+		* Mostrar la descripcion del articulo
+		If Seek(Padl(Allt(Temp.NUMART),20),'Arts')
+			Replace	temp.DESC		With	Arts.DESC,;
+					temp.UNIDAD 	with    arts.unidad,;
+					temp.impuesto1	with    ARTS.IMPUESTO1
+
+
+		* cAMBIO DE PRECIOS POR DIVISA
+			********************
+			IF THISFORM.DIVISA.VALUE= 1
+				* PESOS
+				*** PRECIOS EN PESOS
+				IF ARTS.DIVISA ='P' and empty(temp.precio)
+						REPLACE temp.PRECIO WITH ARTS.ultcosto
+			ENDIF
+			
+				IF ARTS.DIVISA = 'D' and empty(temp.precio)
+					REPLACE temp.PRECIO WITH ARTS.ultcosto * THISFORM.NTC
+				ENDIF	
+
+			ENDIF
+
+			***********************
+			IF THISFORM.DIVISA.VALUE= 2
+				* DOLARES
+				*** PRECIOS EN PESOS
+				IF ARTS.DIVISA ='P' and empty(temp.precio)
+						
+						REPLACE temp.PRECIO WITH ARTS.ultcosto/THISFORM.NTC
+						
+				ENDIF
+				
+				IF ARTS.DIVISA = 'D' and empty(temp.precio)
+				
+					REPLACE temp.PRECIO WITH ARTS.ultcosto
+					
+				ENDIF	
+
+			ENDIF
+
+			***********************
+			* BRICAR LA DESCRIPCIÓN
+*			KeyBoard '{ENTER}'		
+				
+		Else
+			Aviso('Clave no Existe')
+			Select temp
+			Replace	DESC		With	'',;
+					CANT		With	0,;
+					UNIDAD		With	'',;
+					PRECIO		With	0,;
+					PJEDESC		WITH 	0,;
+					impuesto1	with    0,;
+					IMPORTE		With	0
+			Return
+		EndIf
+		
+	Else			
+		Select temp
+			Replace	DESC		With	'',;
+					CANT		With	0,;
+					UNIDAD		With	'',;
+					PRECIO		With	0,;
+					PJEDESC		WITH 	0,;
+					impuesto1	with    0,;
+					IMPORTE		With	0
+	endif	
+	
+*	if empty (temp.numart) AND NOT EMPTY(TEMP.dESC)
+*		* Borra la informacion del registro
+*		Select temp
+*		Replace	DESC		With	'',;
+*				CANT		With	0,;
+*				UNIDAD		With	'',;
+*				PRECIO		With	0,;
+*				PJEDESC		WITH 	0,;
+*				impuesto1	with    0,;
+*				IMPORTE		With	0
+*	 endif
+	
+	
+	EndWith
+
+thisform.cargartotales()
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T01509N3</uniqueid>
+		<timestamp>1065909324</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Descripción"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Valid
+* Desc valid
+
+*sELE TEMP
+*cNumArt = Padl(allt(Temp.Numart),20)
+*	= Seek(cNumArt,'Arts','Numart')
+*	if Found()
+*		Replace desc with arts.desc
+*	endif
+
+ENDPROC
+PROCEDURE When
+*
+* Desc   when
+*
+* No se puede editar el campo
+
+sELE TEMP
+
+cNumArt = Padl(allt(Temp.Numart),20)
+	 =Seek(cNumArt,'Arts','Numart')
+	if Found()
+		keyboard '{ENTER}'
+	endif
+
+	if Not empty(Temp.Desc)
+		return .F.
+	endif
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1183472722</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Cantidad"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YI00BD1F</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+Alignment = 3
+BorderStyle = 0
+Value = 0
+Format = "Z"
+InputMask = "999,999,999.99"
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == -2
+		
+		Sele TempgSer
+		Scan
+			
+			Sele TempgSer
+				Replace	Serie	with	""
+				
+		Endscan
+		
+		Sele TempgSer
+		Go top
+		
+		.Grid4.Visible = .T.
+		
+		Sele Temp
+		*Cargar Series
+		cListaSeries = Temp.Series
+		
+		* Validar todas las notas
+		For i=1 to 50
+				
+			cSerieL = mLine(cListaSeries,i)
+			cSerie = Padl(Allt(cSerieL),30)
+
+			Sele TempgSer
+				Replace	Serie	with	Allt(cSerie)
+			
+			Sele TempgSer	
+			Skip 1
+			
+		Next
+		
+		Sele TempgSer
+		Go Top
+		
+		.Grid4.Refresh
+		.Grid4.Setfocus
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+PROCEDURE Valid
+LPARAMETERS nKeyCode, nShiftAltCtrl
+* cant valid
+
+sele temp
+replace temp.importe with temp.cant * temp.precio
+
+thisform.cargartotales()
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YI00BD1G</uniqueid>
+		<timestamp>1167152498</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Unidad"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3DN0XDM11</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+Alignment = 3
+BorderStyle = 0
+Value = 
+InputMask = ""
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE When
+* When
+*
+*   Unidad
+*
+* No se puede editar el campo
+Return .F.
+
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1065909324</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Costo Unitario"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Format = "Z"
+InputMask = "999,999,999.99"
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+ENDPROC
+PROCEDURE Valid
+*
+* Costo unitario (precio)  VALID
+
+*** multiplicar precio por cantidad
+sele temp
+replace temp.importe with temp.cant * temp.precio
+
+thisform.cargartotales()
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0M9RAL</uniqueid>
+		<timestamp>1167152498</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Importe"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0MEEPB</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 3
+BorderStyle = 0
+Value = 0
+Format = "Z"
+InputMask = "999,999,999.99"
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeyCode == 13
+	sele temp		
+	KeyBoard '{DNARROW}'
+EndIf
+
+ENDPROC
+PROCEDURE Valid
+* column 8
+* valid
+sele temp
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0MEEPC</uniqueid>
+		<timestamp>1167152498</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "% Desc"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0MEEPD</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Valid
+* pje desc valid
+
+* Aviso ('calcular descuento solo en totales')
+thisform.cargartotales()
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0MEEPE</uniqueid>
+		<timestamp>1167152498</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "% Imp"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0MEEPJ</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column7</parent>
+		<properties>BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+ENDPROC
+PROCEDURE Valid
+* pje imp   valid
+
+thisform.cargartotales()
+ENDPROC
+PROCEDURE When
+* cOLUMN 7
+
+iF EMPTY (tEMP.NUMART) AND NOT EMPT (TEMP.CANT)
+rEPLACE TEMP.IMPUESTO1 WITH 16
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Descuento</objname>
+		<parent>Formamsl1</parent>
+		<properties>Alignment = 3
+Value = 0
+Height = 21
+InputMask = "999,999,999.99"
+Left = 550
+ReadOnly = .T.
+TabIndex = 23
+Top = 58
+Width = 90
+ZOrderSet = 13
+Name = "Descuento"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Importe</objname>
+		<parent>Formamsl1</parent>
+		<properties>Alignment = 3
+Value = 0
+Height = 21
+InputMask = "999,999,999.99"
+Left = 550
+ReadOnly = .T.
+TabIndex = 27
+Top = 78
+Width = 90
+ZOrderSet = 14
+Name = "Importe"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0M9RAM</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Iva</objname>
+		<parent>Formamsl1</parent>
+		<properties>Alignment = 3
+Value = 0
+Height = 21
+InputMask = "999,999,999.99"
+Left = 550
+ReadOnly = .T.
+TabIndex = 26
+Top = 98
+Width = 90
+ZOrderSet = 15
+Name = "Iva"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>combobox</class>
+		<classloc/>
+		<baseclass>combobox</baseclass>
+		<objname>DIVISA</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontSize = 8
+RowSourceType = 1
+RowSource = "PESOS, DOLARES"
+Value = 1
+Enabled = .T.
+Height = 20
+Left = 80
+Style = 2
+TabIndex = 4
+Top = 82
+Width = 70
+ZOrderSet = 16
+ReadOnly = .F.
+Name = "DIVISA"
+</properties>
+		<protected/>
+		<methods>PROCEDURE InteractiveChange
+*
+* Divisa
+*interactiva change
+
+* Manda llamar el metodo para cargar los costos en Dolares o Pesos
+ThisForm.moneda((This.Value))
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Total</objname>
+		<parent>Formamsl1</parent>
+		<properties>Alignment = 3
+Value = 0
+Height = 21
+InputMask = "999,999,999.99"
+Left = 550
+ReadOnly = .T.
+TabIndex = 24
+Top = 118
+Width = 90
+ZOrderSet = 17
+Name = "Total"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YD0M9RAO</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leecve</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leecve1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 39
+Left = 80
+Width = 330
+Height = 20
+TabIndex = 2
+ZOrderSet = 18
+nanchoclave = 5
+cformabusqueda = busprov
+cexprnombre = provedor.nomprov
+calias = Provedor
+Name = "Leecve1"
+Clave.Name = "Clave"
+Nombre.Name = "Nombre"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda4</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Sub Total"
+Left = 502
+Top = 43
+TabIndex = 28
+ZOrderSet = 19
+Name = "Leyenda4"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YJ14MEYA</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda5</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Descuento"
+Left = 497
+Top = 67
+TabIndex = 29
+ZOrderSet = 20
+Name = "Leyenda5"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YJ14MEYB</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda6</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Importe"
+Left = 508
+Top = 82
+TabIndex = 30
+ZOrderSet = 21
+Name = "Leyenda6"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YJ14MEYC</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda7</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "IVA"
+Left = 522
+Top = 102
+TabIndex = 31
+ZOrderSet = 22
+Name = "Leyenda7"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1YJ14MEYD</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda8</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Total"
+Left = 521
+Top = 122
+TabIndex = 32
+ZOrderSet = 23
+Name = "Leyenda8"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton5</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 477
+Left = 228
+Height = 20
+Width = 50
+Caption = "Limpiar"
+TabIndex = 33
+ZOrderSet = 24
+Name = "Boton5"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*bOTON DE LIMPIAR
+sele temp
+zap
+
+for i= 1 to 50
+append blan
+endfor
+
+GO TOP
+
+
+thisform.grid1.setfocus
+THISFORM.GRID1.REFRESH
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton10</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 477
+Left = 58
+Height = 20
+Width = 80
+Caption = "Borrar Renglón"
+TabIndex = 34
+ZOrderSet = 25
+Name = "Boton10"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+* BOTON DE BORRAR
+sele temp
+
+delete
+
+THISFORM.GRID1.REFRESH
+THISFORM.GRID1.SETFOCUS
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1ZJ0SBLN0</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>factura</objname>
+		<parent>Formamsl1</parent>
+		<properties>Format = "K!"
+Height = 21
+Left = 108
+TabIndex = 36
+Top = 588
+Visible = .F.
+Width = 80
+ZOrderSet = 26
+Name = "factura"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187604940</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda16</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Condición de Pago:"
+Enabled = .T.
+Left = 265
+Top = 68
+TabIndex = 46
+Name = "Leyenda16"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1ZM14T6RD</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda9</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Factura"
+Left = 58
+Top = 588
+Visible = .F.
+TabIndex = 37
+ZOrderSet = 28
+Name = "Leyenda9"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_2480OR1M6</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton12</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 477
+Left = 138
+Height = 20
+Width = 90
+Caption = "Insertar Renglón"
+TabIndex = 35
+ZOrderSet = 29
+Name = "Boton12"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+* BOTON DE BORRAR
+sele temp
+
+**** Inserta un registro en una BD recorriendo los registros de abajo
+**** Importante: Solo usarse para bases chicas
+Local Rec
+	Push Key Clear
+	Rec=Recno()
+	Go Bottom
+	
+*	Append Blank
+	Skip -1
+
+
+SET ORDER TO NUMPAR
+SELE temp
+SCAN
+	REPLACE NUMPAR WITH ' '
+ENDSCAN
+	Goto m.Rec
+
+
+
+****
+**** Inserta un registro en una BD recorriendo los registros de abajo
+**** Importante: Solo usarse para bases chicas
+Local Rec
+	Push Key Clear
+	Rec=Recno()
+	Go Bottom
+	
+	Append Blank
+	Skip -1
+	Do While Recno() &gt;= m.Rec and not bof()
+		Scatter Memvar
+		Skip
+		Gather Memvar
+		Skip -2
+	Enddo
+	Goto m.Rec
+	Scatter Memvar Blank
+	Gather Memvar
+	*Keyboard '{DNARROW}{UPARROW}'
+	Pop Key
+THISFORM.GRID1.REFRESH
+THISFORM.GRID1.SETFOCUS
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda3</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Proveedor"
+Left = 22
+Top = 42
+TabIndex = 39
+ZOrderSet = 30
+Name = "Leyenda3"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda10</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Divisa"
+Left = 40
+Top = 85
+TabIndex = 40
+ZOrderSet = 31
+Name = "Leyenda10"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda11</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Observaciones"
+Left = 282
+Top = 93
+TabIndex = 41
+ZOrderSet = 32
+Name = "Leyenda11"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_2LL0ZI5DX</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>statictext</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>nomuser</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontBold = .F.
+FontSize = 8
+Alignment = 0
+BorderStyle = 0
+Height = 20
+Left = 19
+TabIndex = 20
+Top = 497
+Width = 211
+ZOrderSet = 33
+Name = "nomuser"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>otrosdatos</objname>
+		<parent>Formamsl1</parent>
+		<properties>Height = 51
+Left = 20
+TabIndex = 6
+Top = 139
+Width = 240
+ZOrderSet = 34
+Name = "otrosdatos"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_2SS0PKF2R</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>direnvio</objname>
+		<parent>Formamsl1</parent>
+		<properties>Height = 60
+Left = 20
+TabIndex = 7
+Top = 210
+Width = 240
+ZOrderSet = 35
+Name = "direnvio"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_2SS0PKF2S</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda12</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Medio de Envio:"
+Left = 22
+Top = 124
+TabIndex = 42
+ZOrderSet = 36
+Name = "Leyenda12"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_2SS0PKF2T</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda13</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Dirección de Envio:"
+Left = 22
+Top = 192
+TabIndex = 43
+ZOrderSet = 37
+Name = "Leyenda13"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QN</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leesuc</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leesuc1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 102
+Left = 4
+Width = 270
+Height = 30
+TabIndex = 16
+ZOrderSet = 38
+Name = "Leesuc1"
+Label8.Caption = "\&lt;Almacen"
+Label8.Name = "Label8"
+NumAlm.Name = "NumAlm"
+NomAlm.Name = "NomAlm"
+BuscaAlm.Name = "BuscaAlm"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3DN0WE4TW</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>obs</objname>
+		<parent>Formamsl1</parent>
+		<properties>Height = 56
+Left = 280
+TabIndex = 8
+Top = 110
+Width = 210
+ZOrderSet = 39
+Name = "obs"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3DN0XDM13</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda14</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "#\&lt;Proyecto"
+Left = 19
+Top = 517
+Visible = .F.
+TabIndex = 18
+ZOrderSet = 40
+Name = "Leyenda14"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AJ0P4V5W</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid2</objname>
+		<parent>Formamsl1</parent>
+		<properties>ColumnCount = 2
+FontSize = 8
+AllowAddNew = .F.
+DeleteMark = .F.
+GridLines = 2
+GridLineWidth = 1
+Height = 100
+Left = 280
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 2
+TabIndex = 10
+Top = 170
+Width = 366
+ZOrderSet = 41
+Name = "Grid2"
+Column1.FontSize = 8
+Column1.Width = 133
+Column1.ReadOnly = .T.
+Column1.Format = "!"
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 208
+Column2.Name = "Column2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE When
+*** WHEN EVENT GRID1
+
+SELE TEMP
+SET ORDER TO NUMPAR
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AJ0P4V5X</uniqueid>
+		<timestamp>1180392819</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid2.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Dato"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AJ0P4V5Y</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid2.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 0
+BorderStyle = 0
+Format = "!"
+InputMask = ""
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+
+	
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AJ0P4V5Z</uniqueid>
+		<timestamp>1180392819</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid2.Column2</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Valor"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AJ0P4V60</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid2.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0TG6RU</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>NumdocO</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontSize = 8
+Format = "!K"
+Height = 21
+Left = 81
+TabIndex = 1
+Top = 17
+Width = 110
+ZOrderSet = 42
+Name = "NumdocO"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+if nKeyCode = -1
+	this.value = ''
+	thisform.boton2.click
+ENDIF
+ENDPROC
+PROCEDURE LostFocus
+* Metodo para cargar la informacion del almacen
+WITH THISFORM
+	
+	Select Temp
+	ZAP
+	
+	Select TempExt
+	Zap
+	
+	.Subtotal.value		  =	0
+	.iva.value			  =	0
+	.descuento.value	  = 0
+	.importe.value  	  = 0	
+	.total.value 		  = 0
+	.obs.value 	 		  = ''
+	.direnvio.value 	  = ''
+	.otrosdatos.value 	  = ''
+	.tc.value			  = 0
+	.leecve1.clave.value  = ''
+	.leeSuc1.NumAlm.value = ''
+	
+	*Si esta vacío no hacemos nada
+	if empty(this.value)
+		Return .F.
+	ENDIF
+		
+	cFolio = Padl(Allt(This.value),10)
+	
+	*Validamos que la OC no se haya enlazado a algun documento aún	
+	Sele * from Movim where SubStr(Movim.docant,1,12) = ' O' + padl(allt(.NumDocO.value),10) and tipodoc = ' C' into cursor TempVal
+	
+	Sele TempVal
+	nRec = RecCount()
+	
+	if nRec &gt; 0
+		aviso('No puede modificar ordenes de compra enlazadas a otros documentos. Verifique la información. (Orden enlazada a la compra ' + allt(tempval.numdoc) + ')')
+		this.value = ''
+		this.lostfocus
+		Return .F.
+	ENDIF
+	
+	Sele Docum
+	=Seek(' O' + cFolio,'Docum','TipoNum')
+	iF Found()
+		
+		if docum.status = 1
+			aviso('No puede modificar ordenes de compra canceladas. Verifique la información.')
+			this.value = ''
+			this.lostfocus
+			Return .F.
+		ENDIF
+		
+		*Borramos el temporal
+		Sele Temp
+		Zap
+		
+		*Cargamos solo lo de la OC Activa
+		.NumDocO.LostFocus
+		
+		.Leefecha1.Setvalue(Docum.fecha)
+		.Subtotal.value	= docum.importe
+		.iva.value		= docum.impuesto1
+		.descuento.value= docum.descuento
+		.importe.value  = docum.importe- docum.descuento
+		.total.value 	= docum.importe- docum.descuento + docum.impuesto1
+		.obs.value  = allt(docum.obs)
+		.direnvio.value = allt(docum.direnvio)
+		.otrosdatos.value = allt(docum.otrosdatos)
+		.tc.value	= docum.tc
+		.leecve1.clave.value = docum.numprov
+		.leecve1.clave.valid()
+		.leeSuc1.NumAlm.value = docum.NumAlm
+		.leeSuc1.NumAlm.valid()
+		
+		*Ubicamos la forma de pago
+		Sele FormaPago
+		=Seek(Docum.FormPago,'FormaPago','NumFormP')
+		if found()
+			.formp.value = FormaPago.Desc
+		ENDIF
+					
+		*Llenamos el temp de datos extra
+		Sele tempext
+		Go Top
+		i = 0
+		FOR i = 0 to 100 STEP 1
+			Sele tempext
+			Replace	valor	with allt(ValProp(Docum.datosextra, allt(tempext.dato)))
+			
+			if eof()
+				Exit
+			else
+				skip +1
+			ENDIF
+		ENDFOR
+		
+		sele docum
+		*** cARGANDO LA DIVISA
+		IF DOCUM.DIVISA = 'P'
+				.DIVISA.VALUE	=	1
+		ENDIF
+		iF dOCUM.DIVISA = 'D'
+				.DIVISA.VALUE 	=   2
+		ENDIF
+		
+		.NTC = thisform.TC.Value
+				
+	Else
+	
+		Aviso ('No se encontró el Documento')
+		
+	Endif
+	
+	SELE temp
+	GO TOP
+	
+	i = 1
+	For i = 1 to 100 STEP 1
+		cTipoNumPar = ' O' + Padl(Allt(.NumdocO.Value),10) + padl(allt(str(i)),3)
+		Sele Movim
+		=Seek(cTipoNumPar,'Movim','TipoNumPar')
+		if found()
+			EXIT
+		ENDIF
+	ENDFOR
+	
+	SELE MOVIM
+	=Seek(cTipoNumPar,'Movim','Tiponumpar')
+	If found()
+	
+		SELE MOVIM
+		Scan While Movim.Numdoc == Padl(Allt(.NumdocO.Value),10)
+			
+			iF Not Empty(Movim.Obs) or Movim.Pend &gt; 0
+				
+				Select Temp
+					Append Blank
+						Replace	Numart		With	Padr(Allt(Movim.Numart),20),;
+								Cant		With	Movim.Pend,;
+								Pend		With	Movim.Pend,;
+								Unidad		with 	Movim.Unidad,;
+								Precio		With	Movim.Precio,;
+								Importe		With	Movim.Pend * Movim.Precio,;
+								Impuesto1	with	Movim.Impuesto1,;
+								Pjedesc		with	Movim.Pjedesc,;
+								DocAnt		with	' O' + PAdl(Allt(.NumdocO.value),10) + Movim.Numpar,;
+								Numpar		with	Movim.Numpar
+				
+				* Mostrar la descripcion del articulo
+				If Seek(MOVIM.NUMART,'Arts')
+					Replace	Temp.DESC	With	Arts.Desc
+				EndIf
+				
+				* Descripciones
+				if empty (movim.numart)
+					Replace Temp.Desc with allt(Movim.Obs)
+				endif
+				
+				* SE BRINCA DE RENGLON POR QUE YA HAY 30
+				IF NOT EOF()
+					SKIP 1		
+				ENDIF
+			
+			Endif
+			
+			Select MOVIM
+			
+		EndScan
+	
+	Endif
+		
+	
+	*Calcular Totales
+	thisform.cargartotales()
+	
+	Sele Temp
+	GO TOP
+	
+	*Actualizar
+	.Grid1.Refresh()
+	
+ENDWITH
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0TG6RV</uniqueid>
+		<timestamp>1187549231</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda15</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontBold = .T.
+Caption = "Ord. Compra"
+Left = 9
+Top = 19
+TabIndex = 38
+ZOrderSet = 43
+Name = "Leyenda15"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0TG6RW</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 17
+Left = 192
+Height = 20
+Width = 17
+Caption = "?"
+TabIndex = 44
+ZOrderSet = 44
+Name = "Boton2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Buscar orden de Compra
+WITH THISFORM
+	
+	.Grid3.Visible = .T.
+	
+	cNumprov 	   = Padl(Allt(Thisform.Leecve1.Clave.value),5)
+			
+	Sele TempgOrd
+	Zap
+	
+	*consultar movim, docum y regcal de acuerdo a los filtros de la ventana
+	cSql= ' Sele Docum.Numdoc, Docum.Fecha, Docum.Numprov, Docum.Divisa, '+;
+	      ' Docum.Importe, Docum.Status, Docum.Impuesto1, Docum.Impuesto2, Docum.Descuento From Docum '+;
+	     ' Where Docum.Tipodoc = " O" and '+;
+	     		' Docum.Status &lt;&gt; 1 and ' +;
+	     		' Docum.Status &lt;&gt; 12 and ' +;
+	   		  Iif(Empty(cNumprov),".T." , " Docum.Numprov = m.Val1 ")+ ' and ' + ;
+	   		  ' Not empty(Docum.Numdoc) ' +;
+	   		  ' Order by Docum.Numdoc '
+	   		
+	*Buqueda
+	if Not SqlMSL ('TempOrd' , cSql , cNumprov)
+		return
+	endif
+
+	* Pasando valors a Tempg		
+	Sele TempOrd
+	SCAN 	
+	
+		Sele Provedor
+		=Seek(Tempord.Numprov,'Provedor','NUMPROV')
+		cNomProv= Provedor.NomProv
+		
+		Sele TempgOrd
+			Append Blank
+				Replace Numdoc    with	TempOrd.Numdoc,;
+						Fecha	  with 	TempOrd.Fecha,;
+						Nomprov   with 	cNomprov,;
+						Importe   with  TempOrd.Importe ,;
+						Impuesto1 with  TempOrd.Impuesto1,;
+						Divisa    with  TempOrd.Divisa,;
+						Total     with  ((TempOrd.Importe + TempOrd.impuesto1 + TempOrd.impuesto2) - TempOrd.Descuento)
+		
+		Sele TempOrd
+		
+	ENDSCAN
+	
+	.grid3.Refresh
+	.grid3.Setfocus
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCE</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid3</objname>
+		<parent>Formamsl1</parent>
+		<properties>ColumnCount = 7
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 198
+Left = 10
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 2
+TabIndex = 11
+Top = 79
+Width = 640
+ZOrderSet = 45
+Name = "Grid3"
+Column1.FontSize = 8
+Column1.Width = 56
+Column1.ReadOnly = .T.
+Column1.Visible = .T.
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 67
+Column2.ReadOnly = .T.
+Column2.Visible = .T.
+Column2.Name = "Column2"
+Column3.FontSize = 8
+Column3.ColumnOrder = 3
+Column3.Width = 225
+Column3.ReadOnly = .T.
+Column3.Visible = .T.
+Column3.Name = "Column3"
+Column4.FontSize = 8
+Column4.ColumnOrder = 5
+Column4.Width = 83
+Column4.ReadOnly = .T.
+Column4.Visible = .T.
+Column4.Format = "!kz"
+Column4.InputMask = "9,999,999.99"
+Column4.Name = "Column4"
+Column5.FontSize = 8
+Column5.ColumnOrder = 6
+Column5.Width = 75
+Column5.ReadOnly = .T.
+Column5.Visible = .T.
+Column5.Format = "!kz"
+Column5.InputMask = "9,999,999.99"
+Column5.Name = "Column5"
+Column6.FontSize = 8
+Column6.ColumnOrder = 4
+Column6.Width = 19
+Column6.ReadOnly = .T.
+Column6.Visible = .T.
+Column6.Name = "Column6"
+Column7.FontSize = 8
+Column7.ColumnOrder = 7
+Column7.Width = 84
+Column7.ReadOnly = .T.
+Column7.Format = "!Kz"
+Column7.InputMask = "9,999,999.99"
+Column7.Name = "Column8"
+</properties>
+		<protected/>
+		<methods>PROCEDURE AfterRowColChange
+LPARAMETERS nColIndex
+
+* Colorear renglón
+if select('tempg')&gt;0
+	Select Tempg
+	ThisForm.ActiveRecno = Recno()
+	this.Refresh()
+	
+endif
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCF</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column1</parent>
+		<properties>FontSize = 8
+Caption = "Documento"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCG</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCH</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column2</parent>
+		<properties>FontSize = 8
+Caption = "Fecha"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCI</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCJ</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column3</parent>
+		<properties>FontSize = 8
+Caption = "Proveedor"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCK</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column3</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCL</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column4</parent>
+		<properties>FontSize = 8
+Caption = "Importe"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCM</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column4</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Format = "!kz"
+InputMask = "9,999,999.99"
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCN</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column5</parent>
+		<properties>FontSize = 8
+Caption = "Impuesto"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCO</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column5</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Format = "!kz"
+InputMask = "9,999,999.99"
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCP</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column6</parent>
+		<properties>FontSize = 8
+Caption = "Divisa"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCQ</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column6</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCR</uniqueid>
+		<timestamp>1181836728</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid3.Column8</parent>
+		<properties>FontSize = 8
+Caption = "Total"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B10QCQCS</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid3.Column8</parent>
+		<properties>BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		Sele TempgOrd
+		 cNumOrd = TempgOrd.Numdoc
+		
+		 *Colocar el folio en su lugar
+		.NumdocO.value  = Padl(Allt(cNumOrd),10)
+		
+		.Grid3.visible = .F.
+		.grid3.refresh
+		
+		.NumdocO.Lostfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_1T012N5QO</uniqueid>
+		<timestamp>1187606056</timestamp>
+		<class>combobox</class>
+		<classloc/>
+		<baseclass>combobox</baseclass>
+		<objname>formp</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontSize = 8
+ColumnCount = 0
+RowSourceType = 2
+RowSource = "allt(formapago.desc)"
+Height = 21
+Left = 357
+Style = 2
+Top = 64
+Width = 133
+Name = "formp"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4BP0LCP21</uniqueid>
+		<timestamp>1187668180</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid4</objname>
+		<parent>Formamsl1</parent>
+		<properties>ColumnCount = 1
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 168
+Left = 272
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 0
+TabIndex = 45
+Top = 109
+Width = 237
+ZOrderSet = 46
+Name = "Grid4"
+Column1.FontSize = 8
+Column1.Width = 232
+Column1.Name = "Column1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4BP0LCP22</uniqueid>
+		<timestamp>1183470343</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid4.Column1</parent>
+		<properties>FontSize = 8
+Caption = "Series"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4BP0LCP23</uniqueid>
+		<timestamp>1187670120</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid4.Column1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+	If nKeyCode == 13
+		
+		cSeries = ""
+		
+		Sele TempgSer
+		Go Top
+		Scan	
+			
+			iF Not Empty(TempgSer.Serie)
+			
+				* Formamos la Cadena en pares
+				cSeries = TempgSer.Serie  	+ Chr(13) +;
+						  cSeries
+			Endif
+				
+		Endscan
+		
+		Sele Temp
+			Replace	Series	with  cSeries
+		
+		.Grid4.visible = .F.
+		
+		*Ir a la grid1
+		.grid4.Setfocus()
+		
+	EndIf
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>RESERVED</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties>Arial, 0, 9, 5, 15, 12, 32, 3, 0
+Arial, 0, 8, 5, 14, 11, 29, 3, 0
+Arial, 1, 12, 8, 20, 15, 42, 4, 1
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+</VFPData>

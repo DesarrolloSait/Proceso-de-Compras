@@ -1,0 +1,6 @@
+
+AddBar('Compras','\-','' )
+Addbar('Compras','Alta de Requisiciones','DoForm("requi1",1)')
+AddBar('Compras','Catalogo de Requisiciones','DoForm("catrequi")')
+AddBar('Compras','\-','' )
+ AddBar('Compras','Autorizacion de Requisiciones','DoForm("Autrequi")')

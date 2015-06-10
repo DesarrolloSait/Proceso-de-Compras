@@ -1,0 +1,37 @@
+
+AddBar('inventario','Consulta de existencia por sucursal', 'DoForm("existesuc")')
+AddBar('Compras','Consulta de Compras Pagadas',        'DoForm("ComPag")')
+AddBar('Gastos','Consulta de Gastos \<Pagados',           'Do Form GasPag')
+
+AddBar('contabilid','\-','')
+AddBar('contabilid','Estado de Resultados 12 meses', 'DoForm("edores12")')
+AddBar('contabilid','Balance General 12 meses', 'DoForm("balgral12")')
+AddBar('contabilid','Balanza de Comprobación', 'DoForm("balanza")')
+AddBar('contabilid','Libro Diario de Pólizas', 'DoForm("diariopol")')
+AddBar('contabilid','\-','')
+AddBar('contabilid','Consult\<a de Direccion','DoForm("ConsDire")')	
+
+
+AddBar('Cobranza','\-','' )
+AddBar('cobranza','Gerente de Cobranza', 'DoForm("Saldocxc")')
+
+
+AddBar('Compras','\-','' )
+AddBar('Compras','Proveedores datos Adicionales', 'DoForm("Catprov")')
+AddBar('Compras','Condiciones de Pago a Proveedor', 'DoForm("CatFormp")')
+AddBar('Compras','\-','' )
+AddBar('Compras','Modificar Ordenes de Compra', 'DoForm("ModOrd")')
+AddBar('Compras','\-','' )
+Addbar('Compras','Alta de Requisiciones','DoForm("requi1",1)')
+AddBar('Compras','Catalogo de Requisiciones','DoForm("catrequi")')
+AddBar('Compras','\-','' )
+ AddBar('Compras','Autorizacion de Requisiciones','DoForm("Autrequi")')
+AddBar('Compras','\-','' )
+Addbar('Compras','Recepciones de Materiales','DoForm("recepmat",1)')
+AddBar('Compras','Catalogo de Recepciones de Materiales','DoForm("catrecep")')
+AddBar('Compras','\-','' )
+Addbar('Compras','Enlazar Entradas','DoForm("Ligafac",1)')
+AddBar('Compras','Catalogo de Compras Enlazadas','DoForm("Catligfac")')
+
+AddBar('cuentaspor','\-','' )
+AddBar('Cuentaspor','Gerente de Tesorería', 'DoForm("Gtecxp")')

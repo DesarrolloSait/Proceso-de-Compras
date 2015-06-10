@@ -1,0 +1,9 @@
+Agrear el campo en DOCUM
+DOCUM.AUTOIZA   L(1)
+DOCUM.CLAVAUT   C(5)
+DOCUM.AUTOIZA2  L(1)
+DOCUM.CLAVAUT2  C(5)
+DOCUM.formpago  C(5)
+Docant  C(10)
+Docpost C(10)
+DATOSEXTRA M(10)

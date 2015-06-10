@@ -1,0 +1,5595 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<VFPData>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>Screen</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties/>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1>VERSION =   3.00</reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8>..\..\msllib60\msllib60.vcx</reserved8>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3O411VPQ3</uniqueid>
+		<timestamp>1100059037</timestamp>
+		<class>dataenvironment</class>
+		<classloc/>
+		<baseclass>dataenvironment</baseclass>
+		<objname>Dataenvironment</objname>
+		<parent/>
+		<properties>Name = "Dataenvironment"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2>1</reserved2>
+		<reserved3/>
+		<reserved4>2</reserved4>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3O411VPQ4</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>formamsl</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>form</baseclass>
+		<objname>Formamsl1</objname>
+		<parent/>
+		<properties>Height = 579
+Width = 976
+DoCreate = .T.
+Caption = "Pronóstico de Cobranza"
+WindowState = 0
+Name = "Formamsl1"
+Marco.Name = "Marco"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Init
+* INIT
+
+LParameter cNumcli
+
+With Thisform
+	
+	.pageFrame1.Page1.Leecli1.Numcli.value = cNumcli
+
+Endwith
+	
+
+* 1. Abrir Tablas
+If  not opendbf ('CXC','keyCXC') or ;
+	not opendbf ('DOCUM','Tiponum')or ;
+	not opendbf ('Cia') or ;
+	not opendbf ('Clientes','Numcli') or ;
+	not opendbf ('SucCli','NumCliSuc') or ;
+	not opendbf ('Reportes')
+	return .F.
+endif
+
+* 2 Definir Valores Iniciales
+With Thisform
+	*.vFecha1.Value = (date(year(date()),month(date()),1))
+	.vFecha1.Value = { // }
+	.vFecha2.Value = Date()
+	
+	*.vFecha1.setvalue(date(year(date()),month(date()),1))
+	.vFecha1.setvalue({ // })
+	
+	.vFecha2.setvalue(Date())	
+
+* Cursor para grafica Continer1
+	create cursor Sales(;
+		amount N(12,2),;
+		cName c(10))
+		
+* Cursor para grafica Continer2
+	create cursor Sales2(;
+		amount N(12,2),;
+		cName c(10))
+* Cursor para grafica Continer2
+	create cursor Sales3(;
+		amount N(12,2),;
+		cName c(10))
+		
+* Cursor para grafica Continer2
+	create cursor Sales4(;
+		amount N(12,2),;
+		cName c(10))
+		
+		
+*	Sele Sales
+*	appen blank
+
+* 3. Crear Cursor. De Temp1
+	Create Cursor Temp1(;
+		numcli     c(5),;
+		Nomcli     c(30),;
+		FechaDoc   d(8),;
+		FVenc      d(8),;
+		Numdoc     c(10),;
+		Importe    N(12,2),;
+		Divisa     C(1),;
+		NoVenc     N(12,2),;
+		venc15     N(12,2),;
+		Venc30     N(12,2),;
+		Venc45     N(12,2),;
+		Venc60     N(12,2),;
+		Venc60Mas  N(12,2),;
+		Saldos	   N(12,2),;
+		Conc	   c(2),;		
+		KeyDocum   C(12),;
+		KeyRefer   c(12),;
+		TC		   N(8,4))
+		
+* 4. Crear Cursor de Resumen
+	Create Cursor Temp2(;
+		numcli c(5),;
+		Nomcli c(30),;
+		FechaDoc d(8),;
+		FVenc    d(8),;
+		Numdoc   c(10),;
+		Importe  N(12,2),;
+		Divisa   C(1),;
+		NoVenc     N(12,2),;
+		venc15     N(12,2),;
+		Venc30     N(12,2),;
+		Venc45     N(12,2),;
+		Venc60     N(12,2),;
+		Venc60Mas  N(12,2),;
+		Saldos	   N(12,2))
+		
+		
+	
+
+* 5. Crear Cursor. De Temp3 De Pronóstico de Cobranza
+	Create Cursor Temp3 (;
+		numcli 	   c(5),;
+		Nomcli     c(30),;
+		FechaDoc   d(8),;
+		FVenc      d(8),;
+		Numdoc     c(10),;
+		Importe    N(12,2),;
+		Divisa     C(1),;
+		Vencidas   N(12,2),;
+		Pron15     N(12,2),;
+		Pron30     N(12,2),;
+		Pron45     N(12,2),;
+		Pron60     N(12,2),;
+		Pron60Mas  N(12,2),;
+		Conc	   c(2),;		
+		KeyDocum   C(12),;
+		KeyRefer   c(12),;
+		Saldos	   N(12,2),;
+		TC		   N(8,4))
+		
+* 6. Crear Cursor de Resumen de Pronóstico de Cobranza
+		Create Cursor Temp4(;
+		numcli	    c(5),;
+		Nomcli      c(30),;
+		FechaDoc    d(8),;
+		FVenc       d(8),;
+		Numdoc      c(10),;
+		Importe     N(12,2),;
+		Divisa      C(1),;
+		Vencidas     N(12,2),;
+		Pron15     N(12,2),;
+		Pron30     N(12,2),;
+		Pron45     N(12,2),;
+		Pron60     N(12,2),;
+		Pron60Mas  N(12,2),;
+		Saldos	   N(12,2))
+		
+		
+		
+*Colocar valoes de Temp1 en la GRID1
+	
+	.LockScreen = .t.
+	 With ThisForm.pageFrame1.Page1.Grid1
+	  .RecordSourceType = 1
+	  .RecordSource = 'temp1'
+	
+	  .Column1.controlSource = 'temp1.Numcli'
+	  .Column2.ControlSource = 'temp1.Nomcli'
+	  .Column3.ControlSource = 'mexdate2(temp1.Fechadoc)'
+	  .Column4.ControlSource = 'mexdate2(temp1.Fvenc)'
+	  .Column5.ControlSource = 'temp1.conc'
+	  .Column6.ControlSource = 'temp1.Numdoc'
+	  .Column7.ControlSource = 'temp1.Importe'
+	  .Column8.ControlSource = 'temp1.divisa'
+	  .Column9.ControlSource = 'temp1.Novenc'
+	  .Column10.ControlSource = 'temp1.Venc15'
+	  .Column11.ControlSource = 'temp1.Venc30'
+	  .Column12.ControlSource = 'temp1.Venc45'
+	  .Column13.ControlSource = 'temp1.Venc60'
+	  .Column14.ControlSource = 'temp1.Venc60mas'
+	  .Column15.ControlSource = 'temp1.Saldos'
+	
+	 EndWith
+	 .LockScreen = .f.
+
+*Colocar Valores de Temp2 en GRID2
+
+	.LockScreen = .t.
+	 With ThisForm.pageFrame1.Page1.Grid2
+	  .RecordSourceType = 1
+	  .RecordSource = 'temp2'
+	
+	  .Column8.ControlSource = 'temp2.Divisa'
+	  .Column9.ControlSource = 'temp2.Novenc'
+	  .Column10.ControlSource = 'temp2.Venc15'
+	  .Column11.ControlSource = 'temp2.Venc30'
+	  .Column12.ControlSource = 'temp2.Venc45'
+	  .Column13.ControlSource = 'temp2.Venc60'
+	  .Column14.ControlSource = 'temp2.Venc60mas'
+	  .Column15.ControlSource = 'temp2.Saldos'
+	
+	 EndWith
+	 .LockScreen = .f.
+
+*Colocar valoes de Temp1 en la GRID1
+	
+	.LockScreen = .t.
+	 With ThisForm.pageFrame1.Page2.Grid3
+	  .RecordSourceType = 1
+	  .RecordSource = 'temp3'
+	
+	  .Column1.controlSource = 'temp3.Numcli'
+	  .Column2.ControlSource = 'temp3.Nomcli'
+	  .Column3.ControlSource = 'mexdate2(temp3.Fechadoc)'
+	  .Column4.ControlSource = 'mexdate2(temp3.Fvenc)'
+	  .Column5.ControlSource = 'temp3.conc'
+	  .Column6.ControlSource = 'temp3.Numdoc'
+	  .Column7.ControlSource = 'temp3.Importe'
+	  .Column8.ControlSource = 'temp3.divisa'
+	  .Column9.ControlSource = 'temp3.vencidas'
+	  .Column10.ControlSource = 'temp3.Pron15'
+	  .Column11.ControlSource = 'temp3.Pron30'
+	  .Column12.ControlSource = 'temp3.Pron45'
+	  .Column13.ControlSource = 'temp3.Pron60'
+	  .Column14.ControlSource = 'temp3.Pron60mas'
+	  .Column15.ControlSource = 'temp3.Saldos'
+	
+	 EndWith
+	 .LockScreen = .f.
+	
+	 *Colocar Valores de Temp2 en GRID2
+
+	.LockScreen = .t.
+	 With ThisForm.pageFrame1.Page2.Grid4
+	  .RecordSourceType = 1
+	  .RecordSource = 'temp4'
+	
+	  .Column8.ControlSource = 'temp4.Divisa'
+	  .Column9.ControlSource = 'temp4.Vencidas'
+	  .Column10.ControlSource = 'temp4.Pron15'
+	  .Column11.ControlSource = 'temp4.Pron30'
+	  .Column12.ControlSource = 'temp4.Pron45'
+	  .Column13.ControlSource = 'temp4.Pron60'
+	  .Column14.ControlSource = 'temp4.Pron60mas'
+	  .Column15.ControlSource = 'temp4.Saldos'
+	
+	 EndWith
+	 .LockScreen = .f.
+	
+	 * Consultar
+	 .consultar1()
+
+
+EndWith
+ENDPROC
+PROCEDURE consulta2
+* consulta 2
+*Generar totales e indicadores de cobranza
+
+* 1. sumar Columas a Variables
+* 2. Generar un Renglon con totales
+* 3. Generar un Renglon con Porcentjes
+* 4. Generar un Renglon con Indicadores
+
+
+*Limpiar
+sele temp2
+zap
+.pageFrame1.Page1.Grid2.refresh
+
+* 1 sumar a Variables
+	Selec temp1
+	Sum (temp1.Importe) for temp1.divisa = 'P' to nImporteP
+	Sum (temp1.Importe) for temp1.divisa = 'D' to nImporteD
+	Sum (temp1.NoVenc)  for temp1.divisa = 'P' to nNoVencP
+	Sum (temp1.NoVenc)	for temp1.divisa = 'D' to nNovencD
+	Sum (temp1.Venc15)	for temp1.divisa = 'P' to nVenc15P
+	Sum (temp1.Venc15)	for temp1.divisa = 'D' to nVenc15D
+	Sum (temp1.Venc30)	for temp1.divisa = 'P' to nVenc30P
+	Sum (temp1.Venc30)	for temp1.divisa = 'D' to nVenc30D
+	Sum (temp1.Venc45)	for temp1.divisa = 'P' to nVenc45P
+	Sum (temp1.Venc45)	for temp1.divisa = 'D' to nVenc45D
+	Sum (temp1.Venc60)  for temp1.divisa = 'P' to nVenc60P
+	Sum (temp1.Venc60)  for temp1.divisa = 'D' to nVenc60D
+	Sum (temp1.Venc60mas) for temp1.divisa = 'P' to nVenc60masP
+	Sum (temp1.Venc60mas) for temp1.divisa = 'D' to nVenc60masD
+	Sum (temp1.Saldos)	for temp1.divisa = 'P' to nSaldosP
+	Sum (temp1.Saldos)	for temp1.divisa = 'D' to nSaldosD
+	Sum (temp1.Saldos)	for temp1.divisa = 'P' to nSaldoTotalP
+	Sum (temp1.Saldos)	for temp1.divisa = 'D' to nSaldoTotalD
+	
+* 2. Renglon de Totales En Pesos
+	
+Sele temp2
+	Appen Blank
+		Replace Temp2.Importe with nImporteP,;
+				Temp2.divisa with 'P',;
+				Temp2.NoVenc with nNoVencP,;
+				Temp2.Venc15 with nVenc15P,;
+				Temp2.Venc30 with nVenc30P,;
+				Temp2.Venc45 with nVenc45P,;
+				Temp2.Venc60 with nVenc60P,;
+				Temp2.Venc60mas with nVenc60masP,;
+				Temp2.Saldos with nSaldototalP
+				
+* 2.1 Renglon de Totales En Dolares
+	
+	Sele temp2
+	Appen Blank
+		Replace Temp2.Importe with nImporteD,;
+				Temp2.divisa with 'D',;
+				Temp2.NoVenc with nNoVencD,;
+				Temp2.Venc15 with nVenc15D,;
+				Temp2.Venc30 with nVenc30D,;
+				Temp2.Venc45 with nVenc45D,;
+				Temp2.Venc60 with nVenc60D,;
+				Temp2.Venc60mas with nVenc60masD,;
+				Temp2.Saldos with nSaldototalD
+		
+		
+* 3. * Calculo de porcentajes
+	* El total es nSaldoTotalP para pesos
+	*y nSaldoTotalD para Dolares.		
+	* Calculamos el porcentaje de cada columna
+	
+	Sele Temp2
+	Appen Blank
+		Replace temp2.NoVenc with (nNoVencP +(nNoVencD * Cia.Tccredito)) / (nSaldoTotalP+(nSaldototalD * Cia.Tccredito)) * 100,;
+				temp2.Venc15 with (nVenc15P +(nVenc15D * Cia.Tccredito)) / (nSaldoTotalP+(nSaldototalD * Cia.Tccredito)) * 100,;
+				temp2.Venc30 with (nVenc30P +(nVenc30D * Cia.Tccredito)) / (nSaldoTotalP+(nSaldototalD * Cia.Tccredito)) * 100,;
+				temp2.Venc45 with (nVenc45P +(nVenc45D * Cia.Tccredito)) / (nSaldoTotalP+(nSaldototalD * Cia.Tccredito)) * 100,;
+				temp2.Venc60 with (nVenc60P +(nVenc60D * Cia.Tccredito)) / (nSaldoTotalP+(nSaldototalD * Cia.Tccredito)) * 100,;
+				temp2.Venc60mas with (nVenc60masP +(nVenc60masD * Cia.Tccredito)) / (nSaldoTotalP+(nSaldototalD * Cia.Tccredito)) * 100,;
+				temp2.Saldos with temp2.Novenc + temp2.Venc15 + temp2.Venc30 + temp2.Venc45 + temp2.Venc60 + temp2.Venc60mas
+	
+
+* 4. Registrar indicadores.
+
+	Sele Temp2
+	Appen Blank
+		Replace temp2.NoVenc with 85,;
+				temp2.venc15 with 10,;
+				Temp2.venc30 with 2,;
+				temp2.venc45 with 1,;
+				temp2.venc60 with 1,;
+				temp2.venc60mas with 1,;
+				Temp2.saldos with  temp2.NoVenc + temp2.venc15 + Temp2.venc30 + temp2.venc45 + temp2.venc60 + temp2.venc60mas
+				
+				
+*Resfrescar GRID1
+GO TOP
+	   .pageFrame1.Page1.Grid2.Refresh
+
+
+*Preparar cursor para actualizar la grafica
+*Grafica en Pesos
+
+Sele Sales
+ZAP
+
+sele SALES
+	appen blan
+			replace Cname 	with 'No Venc',;
+					AMOUNT 	with nNoVencP	
+	appen blan
+			replace cName	with 'Venc 15',;
+					amount	with nVenc15p
+	appen blan
+			replace cName	with 'Venc 30',;
+					amount	with nVenc30P
+	appen blan
+			replace cName	with 'Venc 45',;
+					amount	with nVenc45P
+	appen blan
+			replace cName	with 'Venc 60',;
+					amount	with nVenc60P
+	appen blan
+			replace cName	with 'Venc 60+',;
+					amount	with nVenc60masP
+					
+SELECT (Thisform.pageFrame1.Page1.Container1.Tag)
+Thisform.pageFrame1.Page1.Container1.Refresh
+
+
+*Preparar cursor para actualizar la grafica
+*Grafica en Pesos
+
+Sele Sales2
+ZAP
+
+sele SALES2
+	appen blan
+			replace Cname 	with 'No Venc',;
+					AMOUNT 	with nNoVencD	
+	appen blan
+			replace cName	with 'Venc 15',;
+					amount	with nVenc15D
+	appen blan
+			replace cName	with 'Venc 30',;
+					amount	with nVenc30D
+	appen blan
+			replace cName	with 'Venc 45',;
+					amount	with nVenc45D
+	appen blan
+			replace cName	with 'Venc 60',;
+					amount	with nVenc60D
+	appen blan
+			replace cName	with 'Venc 60+',;
+					amount	with nVenc60masD
+					
+SELECT (Thisform.pageFrame1.Page1.Container2.Tag)
+Thisform.pageFrame1.Page1.Container2.Refresh
+
+ENDPROC
+PROCEDURE consulta3
+
+*Limpiar GRID4
+	Sele temp3
+	ZAP
+	.pageFrame1.Page2.grid3.refresh
+
+Sele TempSaldo
+	Scan
+	
+		*Buscar Nombre del Cliente
+	    Sele clientes
+		=SEEK (tempsaldo.numcli,'Clientes','Numcli')
+			cNomCli = clientes.nomcli
+		
+		
+		Sele temp3
+			Appen Blank
+				Replace numcli  with TempSaldo.numcli,;
+						NomCli  with cNomCli,;
+						Conc	with TempSaldo.Conc,;
+						Numdoc  with subStr(TempSaldo.Refer,3,10),;
+						importe with TempSaldo.importe,;
+						Saldos  with TempSaldo.Saldo,;
+						divisa	with TempSaldo.Divisa,;
+						fechaDoc with TempSaldo.Fecha,;
+						Fvenc   with TempSaldo.Venc,;
+						tc 		with tempsaldo.tc
+		
+					
+		* Se Hacen casos para Filtrar columnas.
+		Do Case
+
+			
+			 &amp;&amp;	* No Vencido   La Fecha del vencimiento es menor que la fecha actual
+			Case  tempsaldo.Venc &lt;= vFecha2
+				Replace Temp3.vencidas with TempSaldo.saldo
+				
+							
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2+1,vFecha2+15)
+				Replace Temp3.Pron15 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2+16,vFecha2+30)
+				Replace Temp3.Pron30 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2+31,vFecha2+45)
+				Replace Temp3.Pron45 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2+46,vFecha2+60)
+				Replace Temp3.Pron60 with TempSaldo.saldo
+						
+			Case TEMPSALDO.VENC &gt;= vFecha2+61
+				Replace Temp3.Pron60mas with TempSaldo.saldo
+			
+		
+		EndCase 		
+				
+			
+		sele tempsaldo
+	EndScan
+
+*Refresh GRID3
+
+.pageFrame1.Page2.GRID3.REFRESH
+
+ENDPROC
+PROCEDURE consulta4
+
+
+* consulta 2
+*Generar totales e indicadores de cobranza
+
+* 1. sumar Columas a Variables
+* 2. Generar un Renglon con totales
+* 3. Generar un Renglon con Porcentjes
+* 4. Generar un Renglon con Indicadores
+
+
+*Limpiar
+sele temp4
+zap
+.pageFrame1.Page2.Grid4.refresh
+
+* 1 sumar a Variables
+	Selec temp3
+	Sum (temp3.Importe) for temp3.divisa = 'P' to nImporteP
+	Sum (temp3.Importe) for temp3.divisa = 'D' to nImporteD
+	Sum (temp3.vencidas)  for temp3.divisa = 'P' to nVencidasP
+	Sum (temp3.vencidas)  for temp3.divisa = 'D' to nVencidasD
+	Sum (temp3.pron15)	for temp3.divisa = 'P' to nPron15P
+	Sum (temp3.pron15)	for temp3.divisa = 'D' to nPron15D
+	Sum (temp3.pron30)	for temp3.divisa = 'P' to nPron30P
+	Sum (temp3.pron30)	for temp3.divisa = 'D' to nPron30D
+	Sum (temp3.pron45)	for temp3.divisa = 'P' to nPron45P
+	Sum (temp3.pron45)	for temp3.divisa = 'D' to nPron45D
+	Sum (temp3.pron60)  for temp3.divisa = 'P' to nPron60P
+	Sum (temp3.pron60)  for temp3.divisa = 'D' to nPron60D
+	Sum (temp3.pron60mas) for temp3.divisa = 'P' to nPron60masP
+	Sum (temp3.pron60mas) for temp3.divisa = 'D' to nPron60masD
+	Sum (temp3.Saldos)	for temp3.divisa = 'P' to nSaldosP
+	Sum (temp3.Saldos)	for temp3.divisa = 'D' to nSaldosD
+	Sum (temp3.Saldos)	for temp3.divisa = 'P' to nSaldoTotalP
+	Sum (temp3.Saldos)	for temp3.divisa = 'D' to nSaldoTotalD
+	Sum (temp3.Importe) to nImporte
+	Sum (temp3.Vencidas)	to nVencidas
+	Sum (temp3.Pron15)	to nPron15
+	Sum (temp3.Pron30)	to nPron30
+	Sum (temp3.Pron45)	to nPron45
+	Sum (temp3.Pron60)  to nPron60
+	Sum (temp3.Pron60mas) to nPron60mas
+	Sum (temp3.Saldos)	to nSaldos
+	Sum (temp3.Saldos)	to nSaldoTotal
+	
+* 2. Renglon de Totales En Pesos
+	
+Sele temp4
+	Appen Blank
+		Replace Temp4.Importe with nImporteP,;
+				Temp4.divisa with 'P',;
+				Temp4.Vencidas with nVencidasP,;
+				Temp4.Pron15 with nPron15P,;
+				Temp4.Pron30 with nPron30P,;
+				Temp4.Pron45 with nPron45P,;
+				Temp4.Pron60 with nPron60P,;
+				Temp4.Pron60mas with nPron60masP,;
+				Temp4.Saldos with nSaldototalP
+				
+* 2.1 Renglon de Totales En Dolares
+	
+	Sele temp4
+	Appen Blank
+		Replace Temp4.Importe with nImporteD,;
+				Temp4.divisa with 'D',;
+				Temp4.Vencidas with nVencidasD,;
+				Temp4.Pron15 with nPron15D,;
+				Temp4.Pron30 with nPron30D,;
+				Temp4.Pron45 with nPron45D,;
+				Temp4.Pron60 with nPron60D,;
+				Temp4.Pron60mas with nPron60masD,;
+				Temp4.Saldos with nSaldototalD
+		
+		
+* 3. * Calculo de porcentajes
+	* El total es nSaldoTotalP para pesos
+	*y nSaldoTotalD para Dolares.	
+	* Calculamos el porcentaje de cada columna
+	
+	Sele Temp4
+	Appen Blank
+		Replace temp4.Vencidas with (nVencidasP +(nVencidasD * Cia.Tccredito)) / (nSaldoTotalP + (nSaldototalD * Cia.Tccredito)) * 100,;
+				temp4.Pron15 with (nPron15P +(nPron15D * Cia.Tccredito)) / (nSaldoTotalP + (nSaldototalD * Cia.Tccredito)) * 100,;
+				temp4.Pron30 with (nPron30P +(nPron30D * Cia.Tccredito)) / (nSaldoTotalP + (nSaldototalD * Cia.Tccredito)) * 100,;
+				temp4.Pron45 with (nPron45P +(nPron45D * Cia.Tccredito)) / (nSaldoTotalP + (nSaldototalD * Cia.Tccredito)) * 100,;
+				temp4.Pron60 with (nPron60P +(nPron60D * Cia.Tccredito)) / (nSaldoTotalP + (nSaldototalD * Cia.Tccredito)) * 100,;
+				temp4.Pron60mas with (nPron60masP +(nPron60masD * Cia.Tccredito)) / (nSaldoTotalP + (nSaldototalD * Cia.Tccredito)) * 100,;
+				temp4.Saldos with temp4.Vencidas + temp4.Pron15 + temp4.Pron30 + temp4.Pron45 + temp4.Pron60 + temp4.Pron60mas
+		
+				
+*Resfrescar GRID4
+		GO TOP
+	   .pageFrame1.Page2.Grid4.Refresh
+
+
+* Graficar
+
+*Preparar cursor para actualizar la grafica
+*Grafica en pesos
+
+Sele Sales3
+ZAP
+
+sele SALES3
+	appen blan
+			replace Cname 	with 'Vencidas',;
+					AMOUNT 	with nVencidasP	
+	appen blan
+			replace cName	with 'Pron 15',;
+					amount	with nPron15P
+	appen blan
+			replace cName	with 'Pron 30',;
+					amount	with nPron30P
+	appen blan
+			replace cName	with 'Pron 45',;
+					amount	with nPron45P
+	appen blan
+			replace cName	with 'Pron 60',;
+					amount	with nPron60P
+	appen blan
+			replace cName	with 'Pron 60+',;
+					amount	with nPron60masP
+					
+SELECT (Thisform.pageFrame1.Page2.Container3.Tag)
+Thisform.pageFrame1.Page2.Container3.Refresh
+
+*Preparar cursor para actualizar la grafica
+*Grafica en Dolares
+
+Sele Sales4
+ZAP
+
+sele SALES4
+	appen blan
+			replace Cname 	with 'Vencidas',;
+					AMOUNT 	with nVencidasD	
+	appen blan
+			replace cName	with 'Pron 15',;
+					amount	with nPron15D
+	appen blan
+			replace cName	with 'Pron 30',;
+					amount	with nPron30D
+	appen blan
+			replace cName	with 'Pron 45',;
+					amount	with nPron45D
+	appen blan
+			replace cName	with 'Pron 60',;
+					amount	with nPron60D
+	appen blan
+			replace cName	with 'Pron 60+',;
+					amount	with nPron60masD
+					
+SELECT (Thisform.pageFrame1.Page2.Container4.Tag)
+Thisform.pageFrame1.Page2.Container4.Refresh
+
+
+ENDPROC
+PROCEDURE consultar1
+*consultar1
+
+* Consultar
+* Iniciarlizar variables
+With ThisForm
+	vFecha1 = .vfecha1.dValue
+	vFecha2 = .vfecha2.dValue
+	cNumcli = .pageFrame1.Page1.Leecli1.Numcli.value
+
+	*Limpiar GRID1
+	Sele temp1
+	ZAP
+	.pageFrame1.Page1.grid1.refresh
+	
+	* Generar Consulta  Abonos.
+	*Sele * from cxc where cxc.ca = '1' and;
+	*	between (cxc.Fecha, vFecha1,vfecha2) into cursor temp
+	
+	*	Saldos Vencidos
+	* Left Join clientes on Cxc.Numcli = Clientes.numcli ;
+	
+	csql =  '  Select * From Cxc ' + ;
+		 	     		 '  Where ' + ;
+	        	        	  '  between (cxc.Fecha, m.Val1, m.Val2)   and ' + ;
+	        	        	  '  Cxc.saldo  &gt;  0        and ' + ;
+	        	        	  '  Cxc.Numcli = m.Val3    and ' + ;
+	        	        	  '  Cxc.Ca     = "0"           ' + ;
+	        	        	   'Order By Cxc.numcli, Cxc.Divisa, Cxc.Venc '
+			 	
+				if not sqlmsl( 'Tempsaldo', csql, vFecha1, vfecha2, cNumcli  )
+					return
+				Endif
+	
+	
+	
+	
+*	Sele * from cxc where cxc.Ca = '0' and ;
+*	cxc.saldo &gt; 0 and;
+*	between (cxc.Fecha, vFecha1,vfecha2)  ;
+*	order by numcli,divisa,cxc.Venc;
+*	into cursor tempSaldo
+*	
+*	Sele tempSaldo
+	
+	* La fecha de Referencia es la 2.
+	
+	
+	* Pasar Datos de consulta a Cursor
+	Sele TempSaldo
+	Scan
+	
+	
+		*Buscar Nombre del Cliente
+	    Sele clientes
+		=SEEK (tempsaldo.numcli,'Clientes','Numcli')
+			cNomCli = clientes.nomcli
+		
+		
+		Sele temp1
+			Appen Blank
+				Replace numcli  with TempSaldo.numcli,;
+						NomCli  with cNomCli,;
+						Conc	with TempSaldo.Conc,;
+						Numdoc  with subStr(TempSaldo.Refer,3,10),;
+						importe with TempSaldo.importe,;
+						Saldos  with TempSaldo.Saldo,;
+						divisa	with TempSaldo.Divisa,;
+						fechaDoc with TempSaldo.Fecha,;
+						Fvenc   with TempSaldo.Venc,;
+						tc 		with tempsaldo.tc
+		
+					
+		* Se Hacen casos para Filtrar columnas.
+		Do Case
+
+			
+			 &amp;&amp;	* No Vencido   La Fecha del vencimiento es menor que la fecha actual
+			Case  Tempsaldo.Venc &gt;= vFecha2 or Empty(Tempsaldo.Venc)
+				Replace Temp1.NoVenc with TempSaldo.saldo
+				
+							
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-15,vFecha2-1)
+				Replace Temp1.Venc15 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-30,vFecha2-16)
+				Replace Temp1.Venc30 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-45,vFecha2-31)
+				Replace Temp1.Venc45 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-60,vFecha2-46)
+				Replace Temp1.Venc60 with TempSaldo.saldo
+						
+			Case TEMPSALDO.VENC&lt;= vFecha2-61
+				Replace Temp1.Venc60mas with TempSaldo.saldo
+			
+		
+		EndCase 		
+				
+			
+		sele tempsaldo
+	EndScan
+	
+	
+	Sele temp1
+
+	*LLenar GRID2
+	.consulta2()
+	
+	*LLenar GRID3
+	.consulta3()
+	
+	*LLenar GRID4
+	.consulta4()
+	
+	*Resfrescar GRID1
+	 .pageFrame1.Page1.Grid1.Refresh
+	
+EndWith 	
+
+
+
+
+
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3>*consulta2 
+*consulta3 
+*consulta4 
+*consultar1 
+</reserved3>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVEZ</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>pageframe</class>
+		<classloc/>
+		<baseclass>pageframe</baseclass>
+		<objname>Pageframe1</objname>
+		<parent>Formamsl1</parent>
+		<properties>ErasePage = .T.
+PageCount = 2
+Top = 12
+Left = 12
+Width = 948
+Height = 552
+Name = "Pageframe1"
+Page1.Caption = "Saldos de Vencidos"
+Page1.Name = "Page1"
+Page2.Caption = "Pronóstico de Cobranza"
+Page2.Name = "Page2"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVF0</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid1</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>ColumnCount = 15
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 218
+Left = 35
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 0
+TabIndex = 3
+Top = 44
+Width = 890
+Name = "Grid1"
+Column1.FontSize = 8
+Column1.Width = 28
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 86
+Column2.Name = "Column2"
+Column3.FontSize = 8
+Column3.Width = 38
+Column3.Name = "Column3"
+Column4.FontSize = 8
+Column4.Width = 48
+Column4.Name = "Column4"
+Column5.FontSize = 8
+Column5.Width = 27
+Column5.Name = "Column5"
+Column6.FontSize = 8
+Column6.Width = 56
+Column6.Name = "Column6"
+Column7.FontSize = 8
+Column7.Width = 48
+Column7.Format = "!KZ"
+Column7.InputMask = "99,999,999.99"
+Column7.Name = "Column7"
+Column8.FontSize = 8
+Column8.Width = 17
+Column8.Name = "Column8"
+Column9.FontSize = 8
+Column9.Width = 75
+Column9.Format = "!KZ"
+Column9.InputMask = "99,999,999,999.99"
+Column9.Name = "Column9"
+Column10.FontSize = 8
+Column10.Width = 73
+Column10.Format = "!KZ"
+Column10.InputMask = "99,999,999.99"
+Column10.Name = "Column10"
+Column11.FontSize = 8
+Column11.Width = 71
+Column11.Format = "!KZ"
+Column11.InputMask = "99,999,999.99"
+Column11.Name = "Column11"
+Column12.FontSize = 8
+Column12.Width = 78
+Column12.Format = "!KZ"
+Column12.InputMask = "99,999,999,999.99"
+Column12.Name = "Column12"
+Column13.FontSize = 8
+Column13.Width = 76
+Column13.Format = "!KZ"
+Column13.InputMask = "99,999,999,999.99"
+Column13.Name = "Column13"
+Column14.FontSize = 8
+Column14.Width = 75
+Column14.Format = "!KZ"
+Column14.InputMask = "99,999,999.99"
+Column14.Name = "Column14"
+Column15.FontSize = 8
+Column15.Width = 78
+Column15.Format = "!KZ"
+Column15.InputMask = "99,999,999.99"
+Column15.Name = "Column15"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFF</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 0
+Caption = "Num. "
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFG</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFH</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+Alignment = 0
+Caption = "Nombre"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFI</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFJ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Fecha"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFK</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFL</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "F. Venc."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFM</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFN</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Tipo"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFO</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFP</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Documento"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFQ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFR</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Importe"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFS</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFT</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Div."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFU</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFV</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column9</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "No Ven."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFW</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column9</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFX</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column10</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc. 15"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFY</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column10</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVFZ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column11</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc. 30"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG0</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column11</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG1</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column12</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc.45"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG2</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column12</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG3</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column13</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc. 60"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG4</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column13</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG5</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column14</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "60 o mas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG6</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column14</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG7</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column15</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Saldos"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG8</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid1.Column15</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVG9</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid2</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>ColumnCount = 8
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 90
+Left = 373
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 0
+TabIndex = 4
+Top = 261
+Width = 552
+Name = "Grid2"
+Column1.FontSize = 8
+Column1.ColumnOrder = 1
+Column1.Width = 17
+Column1.Name = "Column8"
+Column2.FontSize = 8
+Column2.ColumnOrder = 2
+Column2.Width = 75
+Column2.Format = "!KZ"
+Column2.InputMask = "99,999,999.99"
+Column2.Name = "Column9"
+Column3.FontSize = 8
+Column3.ColumnOrder = 3
+Column3.Width = 73
+Column3.Format = "!KZ"
+Column3.InputMask = "99,999,999.99"
+Column3.Name = "Column10"
+Column4.FontSize = 8
+Column4.ColumnOrder = 4
+Column4.Width = 71
+Column4.Format = "!KZ"
+Column4.InputMask = "99,999,999.99"
+Column4.Name = "Column11"
+Column5.FontSize = 8
+Column5.ColumnOrder = 5
+Column5.Width = 78
+Column5.Format = "!KZ"
+Column5.InputMask = "99,999,999.99"
+Column5.Name = "Column12"
+Column6.FontSize = 8
+Column6.ColumnOrder = 6
+Column6.Width = 76
+Column6.Format = "!KZ"
+Column6.InputMask = "99,999,999.99"
+Column6.Name = "Column13"
+Column7.FontSize = 8
+Column7.ColumnOrder = 7
+Column7.Width = 75
+Column7.Format = "!KZ"
+Column7.InputMask = "99,999,999,999.99"
+Column7.Name = "Column14"
+Column8.FontSize = 8
+Column8.ColumnOrder = 8
+Column8.Width = 78
+Column8.Format = "!KZ"
+Column8.InputMask = "99,999,999.99"
+Column8.Name = "Column15"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGA</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Div."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGB</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column8</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGC</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column9</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "No Ven."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGD</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column9</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+InputMask = "99,999,999.99"
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGE</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column10</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc. 15"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGF</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column10</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGG</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column11</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc. 30"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGH</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column11</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGI</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column12</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc.45"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGJ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column12</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGK</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column13</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Venc. 60"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGL</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column13</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGM</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column14</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "60 o mas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGN</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column14</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGO</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column15</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Saldos"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGP</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page1.Grid2.Column15</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGQ</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>container</class>
+		<classloc/>
+		<baseclass>container</baseclass>
+		<objname>Container1</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>Comment = ""
+Tag = "Sales"
+Top = 261
+Left = 35
+Width = 331
+Height = 118
+BorderWidth = 1
+TabIndex = 5
+BackColor = 255,255,255
+Name = "Container1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Refresh
+DIMENSION laColors(12)
+
+laColors(1) = RGB(255,128,128) 	&amp;&amp; RED
+laColors(2) = RGB(0,255,0) 		&amp;&amp; GREEN
+laColors(3) = RGB(128,128,255) 	&amp;&amp; BLUE
+
+laColors(4) = RGB(255,0,255) 	&amp;&amp; PINK
+laColors(5) = RGB(0,255,255) 	&amp;&amp; CYAN
+laColors(6) = RGB(255,255,0) 	&amp;&amp; YELLOW
+
+laColors(7) = RGB(160,160,210) 	&amp;&amp; BLUE2
+laColors(8) = RGB(255,160,30) 	&amp;&amp; ORANGE
+laColors(9) = RGB(200,140,140)  &amp;&amp;
+
+laColors(10) = RGB(96,196,96)   &amp;&amp; GREEN2
+laColors(11) = RGB(255,200,200) &amp;&amp; ROSE
+laColors(12) = RGB(200,200,200)	&amp;&amp; GREY
+
+lnBlack = RGB(28,28,28)			&amp;&amp; BLACK
+lnWhite = RGB(255,255,255) 		&amp;&amp; WHITE
+
+lcTabela = This.Tag
+
+SELECT "&amp;lcTabela"
+
+lnlargura = INT(This.Width / RECCOUNT())
+lnAltura = This.Height
+
+lcFldValor = This.Tag + "." + FIELD(1)
+IF FCOUNT() &gt; 1
+	lcFldLegenda = This.Tag + "." + FIELD(2)
+ELSE
+	lcFldLegenda = ""
+ENDIF
+
+CALCULATE MAX(EVALUATE(lcFldValor)) TO lnMax
+
+SCAN
+	n = RECNO()
+	lcObj = "label" + TRANSFORM(n)
+	lcLeg = "lname" + TRANSFORM(n)
+
+	IF TYPE("This."+lcObj) &lt;&gt; "O"
+		This.AddObject(lcObj,"label")
+		This.AddObject(lcLeg,"label")
+	ENDIF
+
+	WITH This.&amp;lcObj.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = laColors(IIF(n&gt;12,n-12,n))
+		.Width = lnLargura
+		lnValor = EVALUATE(lcFldValor)
+		lnBarra = ( lnValor / lnMax) * (This.Height - 1 - 17)
+		.Height = lnBarra
+		.left = ((n-1) * lnLargura) + 2
+		.Top = lnAltura - This.&amp;lcObj..Height - 17
+		.Tag = TRANSFORM(lnValor)
+		.Caption = TRANSFORM(lnValor,'99,999,999' )
+		.FontSize = 8
+		.FontBold = .T.
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+	
+	WITH This.&amp;lcLeg.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = lnWhite
+		.ForeColor = lnBlack
+		.Width = lnLargura - 2
+		IF NOT EMPTY(lcFldLegenda)
+			.Caption = ALLTRIM(EVALUATE(lcFldLegenda))
+		ENDIF
+		.left = ((n-1) * lnLargura) + 3
+
+		.Top = This.Height - 17
+		.Height = 17
+
+		.FontSize = 8
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+ENDSCAN
+
+This.Width = ((n) * lnLargura) + 3
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGR</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>container</class>
+		<classloc/>
+		<baseclass>container</baseclass>
+		<objname>Container2</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>Tag = "Sales2"
+Top = 378
+Left = 35
+Width = 331
+Height = 120
+BorderWidth = 1
+TabIndex = 6
+BackColor = 255,255,255
+Name = "Container2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Refresh
+DIMENSION laColors(12)
+
+laColors(1) = RGB(255,128,128) 	&amp;&amp; RED
+laColors(2) = RGB(0,255,0) 		&amp;&amp; GREEN
+laColors(3) = RGB(128,128,255) 	&amp;&amp; BLUE
+
+laColors(4) = RGB(255,0,255) 	&amp;&amp; PINK
+laColors(5) = RGB(0,255,255) 	&amp;&amp; CYAN
+laColors(6) = RGB(255,255,0) 	&amp;&amp; YELLOW
+
+laColors(7) = RGB(160,160,210) 	&amp;&amp; BLUE2
+laColors(8) = RGB(255,160,30) 	&amp;&amp; ORANGE
+laColors(9) = RGB(200,140,140)  &amp;&amp;
+
+laColors(10) = RGB(96,196,96)   &amp;&amp; GREEN2
+laColors(11) = RGB(255,200,200) &amp;&amp; ROSE
+laColors(12) = RGB(200,200,200)	&amp;&amp; GREY
+
+lnBlack = RGB(28,28,28)			&amp;&amp; BLACK
+lnWhite = RGB(255,255,255) 		&amp;&amp; WHITE
+
+lcTabela = This.Tag
+
+SELECT "&amp;lcTabela"
+
+lnlargura = INT(This.Width / RECCOUNT())
+lnAltura = This.Height
+
+lcFldValor = This.Tag + "." + FIELD(1)
+IF FCOUNT() &gt; 1
+	lcFldLegenda = This.Tag + "." + FIELD(2)
+ELSE
+	lcFldLegenda = ""
+ENDIF
+
+CALCULATE MAX(EVALUATE(lcFldValor)) TO lnMax
+
+SCAN
+	n = RECNO()
+	lcObj = "label" + TRANSFORM(n)
+	lcLeg = "lname" + TRANSFORM(n)
+
+	IF TYPE("This."+lcObj) &lt;&gt; "O"
+		This.AddObject(lcObj,"label")
+		This.AddObject(lcLeg,"label")
+	ENDIF
+
+	WITH This.&amp;lcObj.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = laColors(IIF(n&gt;12,n-12,n))
+		.Width = lnLargura
+		lnValor = EVALUATE(lcFldValor)
+		lnBarra = ( lnValor / lnMax) * (This.Height - 1 - 17)
+		.Height = lnBarra
+		.left = ((n-1) * lnLargura) + 2
+		.Top = lnAltura - This.&amp;lcObj..Height - 17
+		.Tag = TRANSFORM(lnValor)
+		.Caption = TRANSFORM(lnValor,'99,999,999')
+		.FontSize = 8
+		.FontBold = .T.
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+	
+	WITH This.&amp;lcLeg.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = lnWhite
+		.ForeColor = lnBlack
+		.Width = lnLargura - 2
+		IF NOT EMPTY(lcFldLegenda)
+			.Caption = ALLTRIM(EVALUATE(lcFldLegenda))
+		ENDIF
+		.left = ((n-1) * lnLargura) + 3
+
+		.Top = This.Height - 17
+		.Height = 17
+
+		.FontSize = 8
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+ENDSCAN
+
+This.Width = ((n) * lnLargura) + 3
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGS</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda4</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "P"
+Height = 18
+Left = 22
+Top = 281
+Width = 11
+TabIndex = 7
+Name = "Leyenda4"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGT</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda5</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "E"
+Height = 18
+Left = 22
+Top = 294
+Width = 11
+TabIndex = 8
+Name = "Leyenda5"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH0</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Excel</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>Top = 19
+Left = 623
+Height = 23
+Width = 23
+Picture = r:\sait\cia008\excel.bmp
+Caption = ""
+TabIndex = 9
+ZOrderSet = 6
+Name = "Excel"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+if not opendbf('Cia')
+	return .f.
+endif
+
+sele temp1
+
+
+With Thisform
+	* Mada a Excel la consulta	
+	cNomcia = Allt(Cia.NOMCIA)
+	cTitulo = .Caption
+	cColumnas = ''
+	cMascaras = ''
+	OpenExcel(cNomCia,cTitulo,cColumnas,cMascaras)
+	
+EndWith
+
+Sele cia
+use
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGU</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda6</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "O"
+Height = 18
+Left = 22
+Top = 320
+Width = 12
+TabIndex = 10
+Name = "Leyenda6"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGV</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda7</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "S"
+Height = 18
+Left = 22
+Top = 308
+Width = 11
+TabIndex = 11
+Name = "Leyenda7"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGW</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda8</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "U"
+Height = 18
+Left = 23
+Top = 416
+Width = 11
+TabIndex = 12
+Name = "Leyenda8"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGX</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda9</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "S"
+Height = 18
+Left = 22
+Top = 333
+Width = 11
+TabIndex = 13
+Name = "Leyenda9"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGY</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda10</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "S"
+Height = 18
+Left = 23
+Top = 428
+Width = 11
+TabIndex = 14
+Name = "Leyenda10"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVGZ</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda11</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontSize = 10
+Caption = "D"
+Height = 18
+Left = 23
+Top = 440
+Width = 11
+TabIndex = 15
+Name = "Leyenda11"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH1</uniqueid>
+		<timestamp>1117145127</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda3</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>FontBold = .T.
+FontSize = 20
+Caption = "Saldos de Vencidos"
+Height = 35
+Left = 659
+Top = 14
+Width = 262
+TabIndex = 16
+Name = "Leyenda3"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3RN0JBZJ4</uniqueid>
+		<timestamp>1118464493</timestamp>
+		<class>leecli</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leecli1</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>Top = 8
+Left = -1
+Visible = .F.
+TabIndex = 1
+Name = "Leecli1"
+Label8.Name = "Label8"
+NumCli.Name = "NumCli"
+NomCli.Name = "NomCli"
+BuscaCli.Name = "BuscaCli"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3RN0JBZJ5</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>boton1</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>Top = 8
+Left = 407
+Caption = "Consultar"
+TabIndex = 2
+Visible = .F.
+Name = "boton1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+
+*Consultar
+
+With Thisform
+.Consultar1()
+Endwith
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3S60M9PIG</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton6</objname>
+		<parent>Formamsl1.Pageframe1.Page1</parent>
+		<properties>Top = 10
+Left = 477
+Height = 25
+Width = 70
+Caption = "Imprimir"
+Name = "Boton6"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+* Imprimir
+
+With ThisForm
+
+	Sele Temp1
+			SENDREP('CXCAF20')		
+
+EndWith
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH3</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda2</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontBold = .T.
+FontSize = 20
+Caption = "Pronóstico de Cobranza"
+Height = 35
+Left = 592
+Top = 16
+Width = 320
+Name = "Leyenda2"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH4</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>container</class>
+		<classloc/>
+		<baseclass>container</baseclass>
+		<objname>Container3</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>Tag = "Sales3"
+Top = 263
+Left = 35
+Width = 331
+Height = 118
+BorderWidth = 1
+BackColor = 255,255,255
+Name = "Container3"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Refresh
+DIMENSION laColors(12)
+
+laColors(1) = RGB(255,128,128) 	&amp;&amp; RED
+laColors(2) = RGB(0,255,0) 		&amp;&amp; GREEN
+laColors(3) = RGB(128,128,255) 	&amp;&amp; BLUE
+
+laColors(4) = RGB(255,0,255) 	&amp;&amp; PINK
+laColors(5) = RGB(0,255,255) 	&amp;&amp; CYAN
+laColors(6) = RGB(255,255,0) 	&amp;&amp; YELLOW
+
+laColors(7) = RGB(160,160,210) 	&amp;&amp; BLUE2
+laColors(8) = RGB(255,160,30) 	&amp;&amp; ORANGE
+laColors(9) = RGB(200,140,140)  &amp;&amp;
+
+laColors(10) = RGB(96,196,96)   &amp;&amp; GREEN2
+laColors(11) = RGB(255,200,200) &amp;&amp; ROSE
+laColors(12) = RGB(200,200,200)	&amp;&amp; GREY
+
+lnBlack = RGB(28,28,28)			&amp;&amp; BLACK
+lnWhite = RGB(255,255,255) 		&amp;&amp; WHITE
+
+lcTabela = This.Tag
+
+SELECT "&amp;lcTabela"
+
+lnlargura = INT(This.Width / RECCOUNT())
+lnAltura = This.Height
+
+lcFldValor = This.Tag + "." + FIELD(1)
+IF FCOUNT() &gt; 1
+	lcFldLegenda = This.Tag + "." + FIELD(2)
+ELSE
+	lcFldLegenda = ""
+ENDIF
+
+CALCULATE MAX(EVALUATE(lcFldValor)) TO lnMax
+
+SCAN
+	n = RECNO()
+	lcObj = "label" + TRANSFORM(n)
+	lcLeg = "lname" + TRANSFORM(n)
+
+	IF TYPE("This."+lcObj) &lt;&gt; "O"
+		This.AddObject(lcObj,"label")
+		This.AddObject(lcLeg,"label")
+	ENDIF
+
+	WITH This.&amp;lcObj.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = laColors(IIF(n&gt;12,n-12,n))
+		.Width = lnLargura
+		lnValor = EVALUATE(lcFldValor)
+		lnBarra = ( lnValor / lnMax) * (This.Height - 1 - 17)
+		.Height = lnBarra
+		.left = ((n-1) * lnLargura) + 2
+		.Top = lnAltura - This.&amp;lcObj..Height - 17
+		.Tag = TRANSFORM(lnValor)
+		.Caption = TRANSFORM(lnValor,'99,999,999')
+		.FontSize = 8
+		.FontBold = .T.
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+	
+	WITH This.&amp;lcLeg.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = lnWhite
+		.ForeColor = lnBlack
+		.Width = lnLargura - 2
+		IF NOT EMPTY(lcFldLegenda)
+			.Caption = ALLTRIM(EVALUATE(lcFldLegenda))
+		ENDIF
+		.left = ((n-1) * lnLargura) + 3
+
+		.Top = This.Height - 17
+		.Height = 17
+
+		.FontSize = 8
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+ENDSCAN
+
+This.Width = ((n) * lnLargura) + 3
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH5</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>container</class>
+		<classloc/>
+		<baseclass>container</baseclass>
+		<objname>Container4</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>Tag = "Sales4"
+Top = 380
+Left = 35
+Width = 331
+Height = 118
+BorderWidth = 1
+BackColor = 255,255,255
+Name = "Container4"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Refresh
+DIMENSION laColors(12)
+
+laColors(1) = RGB(255,128,128) 	&amp;&amp; RED
+laColors(2) = RGB(0,255,0) 		&amp;&amp; GREEN
+laColors(3) = RGB(128,128,255) 	&amp;&amp; BLUE
+
+laColors(4) = RGB(255,0,255) 	&amp;&amp; PINK
+laColors(5) = RGB(0,255,255) 	&amp;&amp; CYAN
+laColors(6) = RGB(255,255,0) 	&amp;&amp; YELLOW
+
+laColors(7) = RGB(160,160,210) 	&amp;&amp; BLUE2
+laColors(8) = RGB(255,160,30) 	&amp;&amp; ORANGE
+laColors(9) = RGB(200,140,140)  &amp;&amp;
+
+laColors(10) = RGB(96,196,96)   &amp;&amp; GREEN2
+laColors(11) = RGB(255,200,200) &amp;&amp; ROSE
+laColors(12) = RGB(200,200,200)	&amp;&amp; GREY
+
+lnBlack = RGB(28,28,28)			&amp;&amp; BLACK
+lnWhite = RGB(255,255,255) 		&amp;&amp; WHITE
+
+lcTabela = This.Tag
+
+SELECT "&amp;lcTabela"
+
+lnlargura = INT(This.Width / RECCOUNT())
+lnAltura = This.Height
+
+lcFldValor = This.Tag + "." + FIELD(1)
+IF FCOUNT() &gt; 1
+	lcFldLegenda = This.Tag + "." + FIELD(2)
+ELSE
+	lcFldLegenda = ""
+ENDIF
+
+CALCULATE MAX(EVALUATE(lcFldValor)) TO lnMax
+
+SCAN
+	n = RECNO()
+	lcObj = "label" + TRANSFORM(n)
+	lcLeg = "lname" + TRANSFORM(n)
+
+	IF TYPE("This."+lcObj) &lt;&gt; "O"
+		This.AddObject(lcObj,"label")
+		This.AddObject(lcLeg,"label")
+	ENDIF
+
+	WITH This.&amp;lcObj.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = laColors(IIF(n&gt;12,n-12,n))
+		.Width = lnLargura
+		lnValor = EVALUATE(lcFldValor)
+		lnBarra = ( lnValor / lnMax) * (This.Height - 1 - 17)
+		.Height = lnBarra
+		.left = ((n-1) * lnLargura) + 2
+		.Top = lnAltura - This.&amp;lcObj..Height - 17
+		.Tag = TRANSFORM(lnValor)
+		.Caption = TRANSFORM(lnValor,'99,999,999')
+		.FontSize = 8
+		.FontBold = .T.
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+	
+	WITH This.&amp;lcLeg.
+		.BackStyle = 1 &amp;&amp; opaque
+		.Backcolor = lnWhite
+		.ForeColor = lnBlack
+		.Width = lnLargura - 2
+		IF NOT EMPTY(lcFldLegenda)
+			.Caption = ALLTRIM(EVALUATE(lcFldLegenda))
+		ENDIF
+		.left = ((n-1) * lnLargura) + 3
+
+		.Top = This.Height - 17
+		.Height = 17
+
+		.FontSize = 8
+		.Alignment = 2
+		.Visible = .T.
+	ENDWITH
+ENDSCAN
+
+This.Width = ((n) * lnLargura) + 3
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH6</uniqueid>
+		<timestamp>1111970391</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid4</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>ColumnCount = 8
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 93
+Left = 374
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 0
+Top = 263
+Width = 552
+Name = "Grid4"
+Column1.FontSize = 8
+Column1.ColumnOrder = 1
+Column1.Width = 17
+Column1.Name = "Column8"
+Column2.FontSize = 8
+Column2.ColumnOrder = 2
+Column2.Width = 75
+Column2.Format = "!KZ"
+Column2.InputMask = "99,999,999.99"
+Column2.Name = "Column9"
+Column3.FontSize = 8
+Column3.ColumnOrder = 3
+Column3.Width = 73
+Column3.Format = "!KZ"
+Column3.InputMask = "99,999,999.99"
+Column3.Name = "Column10"
+Column4.FontSize = 8
+Column4.ColumnOrder = 4
+Column4.Width = 71
+Column4.Format = "!KZ"
+Column4.InputMask = "99,999,999.99"
+Column4.Name = "Column11"
+Column5.FontSize = 8
+Column5.ColumnOrder = 5
+Column5.Width = 78
+Column5.Format = "!KZ"
+Column5.InputMask = "99,999,999.99"
+Column5.Name = "Column12"
+Column6.FontSize = 8
+Column6.ColumnOrder = 6
+Column6.Width = 76
+Column6.Format = "!KZ"
+Column6.InputMask = "99,999,999.99"
+Column6.Name = "Column13"
+Column7.FontSize = 8
+Column7.ColumnOrder = 7
+Column7.Width = 75
+Column7.Format = "!KZ"
+Column7.InputMask = "99,999,999,999.99"
+Column7.Name = "Column14"
+Column8.FontSize = 8
+Column8.ColumnOrder = 8
+Column8.Width = 78
+Column8.Format = "!KZ"
+Column8.InputMask = "99,999,999.99"
+Column8.Name = "Column15"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH7</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Div."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH8</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column8</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH9</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column9</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Vencidas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHA</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column9</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+InputMask = "99,999,999.99"
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHB</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column10</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 15"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHC</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column10</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHD</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column11</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 30"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHE</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column11</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHF</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column12</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 45"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHG</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column12</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHH</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column13</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 60"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHI</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column13</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHJ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column14</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "60 o mas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHK</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column14</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHL</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column15</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Saldos"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHM</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid4.Column15</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHN</uniqueid>
+		<timestamp>1111970391</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid3</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>ColumnCount = 15
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 220
+Left = 36
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 0
+Top = 44
+Width = 890
+Name = "Grid3"
+Column1.FontSize = 8
+Column1.Width = 28
+Column1.Visible = .T.
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 86
+Column2.Visible = .T.
+Column2.Name = "Column2"
+Column3.FontSize = 8
+Column3.Width = 38
+Column3.Visible = .T.
+Column3.Name = "Column3"
+Column4.FontSize = 8
+Column4.Width = 48
+Column4.Visible = .T.
+Column4.Name = "Column4"
+Column5.FontSize = 8
+Column5.Width = 27
+Column5.Visible = .T.
+Column5.Name = "Column5"
+Column6.FontSize = 8
+Column6.Width = 56
+Column6.Visible = .T.
+Column6.Name = "Column6"
+Column7.FontSize = 8
+Column7.Width = 48
+Column7.Visible = .T.
+Column7.Format = "!KZ"
+Column7.InputMask = "99,999,999.99"
+Column7.Name = "Column7"
+Column8.FontSize = 8
+Column8.Width = 17
+Column8.Visible = .T.
+Column8.Name = "Column8"
+Column9.FontSize = 8
+Column9.Width = 75
+Column9.Visible = .T.
+Column9.Format = "!KZ"
+Column9.InputMask = "99,999,999,999.99"
+Column9.Name = "Column9"
+Column10.FontSize = 8
+Column10.Width = 73
+Column10.Visible = .T.
+Column10.Format = "!KZ"
+Column10.InputMask = "99,999,999.99"
+Column10.Name = "Column10"
+Column11.FontSize = 8
+Column11.Width = 71
+Column11.Visible = .T.
+Column11.Format = "!KZ"
+Column11.InputMask = "99,999,999.99"
+Column11.Name = "Column11"
+Column12.FontSize = 8
+Column12.Width = 78
+Column12.Visible = .T.
+Column12.Format = "!KZ"
+Column12.InputMask = "99,999,999,999.99"
+Column12.Name = "Column12"
+Column13.FontSize = 8
+Column13.Width = 76
+Column13.Visible = .T.
+Column13.Format = "!KZ"
+Column13.InputMask = "99,999,999,999.99"
+Column13.Name = "Column13"
+Column14.FontSize = 8
+Column14.Width = 75
+Column14.Visible = .T.
+Column14.Format = "!KZ"
+Column14.InputMask = "99,999,999.99"
+Column14.Name = "Column14"
+Column15.FontSize = 8
+Column15.Width = 78
+Column15.Visible = .T.
+Column15.Format = "!KZ"
+Column15.InputMask = "99,999,999.99"
+Column15.Name = "Column15"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHO</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 0
+Caption = "Num. "
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHP</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHQ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column2</parent>
+		<properties>FontSize = 8
+Alignment = 0
+Caption = "Nombre"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHR</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHS</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column3</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Fecha"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHT</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column3</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHU</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column4</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "F. Venc."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHV</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column4</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHW</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column5</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Tipo"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHX</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column5</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHY</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column6</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Documento"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVHZ</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column6</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI0</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column7</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Importe"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI1</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column7</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI2</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Div."
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI3</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column8</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI4</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column9</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Vencidas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI5</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column9</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI6</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column10</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 15"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI7</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column10</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI8</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column11</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 30"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVI9</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column11</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIA</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column12</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron.45"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIB</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column12</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIC</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column13</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Pron. 60"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVID</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column13</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIE</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column14</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "60 o mas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIF</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column14</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIG</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column15</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Saldos"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIH</uniqueid>
+		<timestamp>1111969053</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Pageframe1.Page2.Grid3.Column15</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVH2</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton2</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>Top = 18
+Left = 563
+Height = 23
+Width = 23
+Picture = r:\sait\cia008\excel.bmp
+Caption = ""
+TabIndex = 9
+ZOrderSet = 6
+Name = "Boton2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+if not opendbf('Cia')
+	return .f.
+endif
+
+sele temp3
+
+
+With Thisform
+	* Mada a Excel la consulta	
+	cNomcia = Allt(Cia.NOMCIA)
+	cTitulo = .Caption
+	cColumnas = ''
+	cMascaras = ''
+	OpenExcel(cNomCia,cTitulo,cColumnas,cMascaras)
+	
+EndWith
+
+
+Sele cia
+use
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVII</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda12</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "P"
+Height = 18
+Left = 22
+Top = 283
+Width = 11
+Name = "Leyenda12"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIJ</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda13</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "E"
+Height = 18
+Left = 22
+Top = 296
+Width = 11
+Name = "Leyenda13"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIK</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda14</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "O"
+Height = 18
+Left = 22
+Top = 322
+Width = 12
+Name = "Leyenda14"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIL</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda15</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "S"
+Height = 18
+Left = 22
+Top = 310
+Width = 11
+Name = "Leyenda15"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIM</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda16</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "U"
+Height = 18
+Left = 22
+Top = 413
+Width = 11
+Name = "Leyenda16"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIN</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda17</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "S"
+Height = 18
+Left = 22
+Top = 335
+Width = 11
+Name = "Leyenda17"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIO</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda18</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "S"
+Height = 18
+Left = 22
+Top = 425
+Width = 11
+Name = "Leyenda18"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3PL0KHVIP</uniqueid>
+		<timestamp>1111970246</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda19</objname>
+		<parent>Formamsl1.Pageframe1.Page2</parent>
+		<properties>FontSize = 10
+Caption = "D"
+Height = 18
+Left = 22
+Top = 437
+Width = 11
+Name = "Leyenda19"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Q60W8WA4</uniqueid>
+		<timestamp>1113356375</timestamp>
+		<class>textofecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>vFecha1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Enabled = .F.
+Left = 360
+TabIndex = 1
+Top = 588
+Visible = .F.
+Name = "vFecha1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Q60W8WA5</uniqueid>
+		<timestamp>1113356375</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Fecha"
+Enabled = .F.
+Left = 320
+Top = 592
+Visible = .F.
+TabIndex = 3
+Name = "Leyenda1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Q60W8WA6</uniqueid>
+		<timestamp>1113356375</timestamp>
+		<class>textofecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>vFecha2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Enabled = .F.
+Left = 460
+TabIndex = 2
+Top = 588
+Visible = .F.
+Name = "vFecha2"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Q60W8WA7</uniqueid>
+		<timestamp>1150769957</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 588
+Left = 560
+Height = 25
+Width = 70
+Caption = "Consultar"
+Enabled = .F.
+Visible = .F.
+Name = "Boton1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Consultar
+* Iniciarlizar variables
+With ThisForm
+	vFecha1 = .pageFrame1.Page3.vfecha1.dValue
+	vFecha2 = .pageFrame1.Page3.vfecha2.dValue
+
+	*Limpiar GRID1
+	Sele temp1
+	ZAP
+	.pageFrame1.Page1	.grid1.refresh
+	
+	* Generar Consulta  Abonos.
+	*Sele * from cxc where cxc.ca = '1' and;
+	*	between (cxc.Fecha, vFecha1,vfecha2) into cursor temp
+	
+	*	Saldos Vencidos
+	* Left Join clientes on Cxc.Numcli = Clientes.numcli ;
+	
+	Sele * from cxc where cxc.Ca = '0' and ;
+	cxc.saldo &gt; 0 and ;
+	between (cxc.Fecha, vFecha1,vfecha2)  ;
+	order by numcli,divisa,cxc.Venc;
+	into cursor tempSaldo
+	
+	Sele tempSaldo
+	
+	* La fecha de Referencia es la 2.
+	
+	
+	* Pasar Datos de consulta a Cursor
+	Sele TempSaldo
+	Scan
+	
+	
+		*Buscar Nombre del Cliente
+	    Sele clientes
+		=SEEK (tempsaldo.numcli,'Clientes','Numcli')
+			cNomCli = clientes.nomcli
+		
+		
+		Sele temp1
+			Appen Blank
+				Replace numcli  with TempSaldo.numcli,;
+						NomCli  with cNomCli,;
+						Conc	with TempSaldo.Conc,;
+						Numdoc  with subStr(TempSaldo.Refer,3,10),;
+						importe with TempSaldo.importe,;
+						Saldos  with TempSaldo.Saldo,;
+						divisa	with TempSaldo.Divisa,;
+						fechaDoc with TempSaldo.Fecha,;
+						Fvenc   with TempSaldo.Venc,;
+						tc 		with tempsaldo.tc
+		
+					
+		* Se Hacen casos para Filtrar columnas.
+		Do Case
+
+			
+			 &amp;&amp;	* No Vencido   La Fecha del vencimiento es menor que la fecha actual
+			Case  tempsaldo.Venc &gt;= vFecha2
+				Replace Temp1.NoVenc with TempSaldo.saldo
+				
+							
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-15,vFecha2-1)
+				Replace Temp1.Venc15 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-30,vFecha2-16)
+				Replace Temp1.Venc30 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-45,vFecha2-31)
+				Replace Temp1.Venc45 with TempSaldo.saldo
+			
+			Case BETWEEN(TEMPSALDO.VENC,vFecha2-60,vFecha2-46)
+				Replace Temp1.Venc60 with TempSaldo.saldo
+						
+			Case TEMPSALDO.VENC&lt;= vFecha2-61
+				Replace Temp1.Venc60mas with TempSaldo.saldo
+			
+		
+		EndCase 		
+				
+			
+		sele tempsaldo
+	EndScan
+	
+	
+	Sele temp1
+
+	*LLenar GRID2
+	.consulta2()
+	
+	*LLenar GRID3
+	.consulta3()
+	
+	*LLenar GRID4
+	.consulta4()
+	
+	*Resfrescar GRID1
+	 .pageFrame1.Page1.Grid1.Refresh
+	
+EndWith 	
+
+
+
+
+
+
+
+
+
+
+
+
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>RESERVED</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties>Arial, 0, 9, 5, 15, 12, 32, 3, 0
+Arial, 0, 8, 5, 14, 11, 29, 3, 0
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1></reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+</VFPData>

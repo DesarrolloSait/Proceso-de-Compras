@@ -1,0 +1,601 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<VFPData>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>Screen</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties/>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1>VERSION =   3.00</reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_0QI16K685</uniqueid>
+		<timestamp>755539606</timestamp>
+		<class>dataenvironment</class>
+		<classloc/>
+		<baseclass>dataenvironment</baseclass>
+		<objname>Dataenvironment</objname>
+		<parent/>
+		<properties>Name = "Dataenvironment"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2>1</reserved2>
+		<reserved3/>
+		<reserved4>2</reserved4>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_0QI16K686</uniqueid>
+		<timestamp>1187548931</timestamp>
+		<class>formamsl</class>
+		<classloc>..\..\msllib60\cheques2.vcx</classloc>
+		<baseclass>form</baseclass>
+		<objname>Formamsl1</objname>
+		<parent/>
+		<properties>Height = 155
+Width = 321
+DoCreate = .T.
+Caption = ""
+WindowState = 0
+Name = "Formamsl1"
+Marco.ZOrderSet = 1
+Marco.Name = "Marco"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Init
+** nModo= modo de trabajo
+**	1=Alta
+**	2=Modificacion
+**	3=Baja
+** nRec= numero de registro a editar
+**
+lParameter nModo,nRec
+
+* Abriendo Tablas
+if not opendbf ('FormaPago','NumFormP')
+	return .f.
+endif
+
+with this
+
+	*** Si no manda parametros, modo de operacion = Alta
+	If PCount()==0
+		nModo=1
+	Endif
+
+	.nModo 			= nModo
+	.combo1.value 	= 1
+	
+	*** Si es modificacion o baja, colocarme en el registro a editar
+	If (.nModo==2 or .nModo=3)
+		Select FormaPago
+		If (nRec&lt;=0 or nRec &gt; Reccount())
+			Alerta('Registro no válido')
+			Return .f.
+		Endif
+		GoTo nRec
+	Endif
+
+	Do Case
+		Case .nModo == 1
+			.Caption = 'Alta de Condiciones de Pago'
+			.save.Caption = '\&lt;Agregar'
+			Select FormaPago
+			Go Bottom
+			
+			if not opendbf('CiaWs')
+				Return .F.
+			ENDIF
+			
+			.folio.Value = ciaws.NumFormP
+			
+			Sele ciaws
+			use
+			
+			
+		Case .nModo == 2
+			sele FormaPago
+			.Caption = 'Modificar Condiciones de Pago'
+			.save.Caption = '\&lt;Actualizar'
+			.CargarInfo()
+			.folio.Enabled = .F.
+			
+		Case .nModo == 3
+			sele FormaPago
+			.Caption = 'Borrar Condiciones de Pago'
+			.save.Caption = '\&lt;Eliminar'
+			.CargarInfo()
+			.SetAll('Enabled',.f.,'Texto')
+			.SetAll('Enabled',.f.,'TextoFecha')
+			.combo1.enabled = .F.
+			.Save.Enabled = .t.
+	Endcase	
+EndWith	
+
+ENDPROC
+PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+if nKeyCode = 27
+	thisform.release
+ENDIF
+ENDPROC
+PROCEDURE cargarinfo
+*** cargar info		
+
+WITH THISFORM
+	
+	Sele FormaPago
+	.folio.value 		= FormaPago.NumFormP
+	.Desc.value 		= FormaPago.Desc
+	.DesCorta.value		= FormaPago.DesCorta
+	.Combo1.value		= FormaPago.Status
+		
+ENDWITH
+ENDPROC
+PROCEDURE saveinfo
+*** SAVEINFO
+
+WITH THISFORM
+		
+	sele FormaPago
+	Replace	NumFormP	with padl(allt(.folio.value),5),;
+			Desc		with allt(.Desc.value),;
+			DesCorta	with allt(.DesCorta.value),;
+			Status		with .combo1.value
+	
+	*Sele marca
+	*SDAddEvent('AddMar',marca.nummar,"","",1)
+		
+endwith
+	
+	
+ENDPROC
+PROCEDURE validainfo
+With Thisform
+
+	If Empty(.Desc.Value)
+		Alerta('No se puede omitir la descripción de la Condición de Pago.')
+		.Desc.SetFocus
+		Return .f.
+	EndIf	
+	
+	If Empty(.DesCorta.Value)
+		Alerta('No se puede omitir la descripción corta de la Condición de Pago.')
+		.Desc.SetFocus
+		Return .f.
+	EndIf	
+		
+	Return .t.
+	
+EndWith
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3>nmodo
+*cargarinfo 
+*validainfo 
+*saveinfo 
+*calculasaldo 
+*imprime 
+</reserved3>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_38X11IIGZ</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\cheques2.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Clave:"
+Left = 24
+Top = 13
+TabIndex = 5
+ZOrderSet = 2
+Name = "Leyenda1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_38X11IIH0</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>statictext</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>folio</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontBold = .T.
+FontSize = 12
+Alignment = 1
+BorderStyle = 0
+Height = 20
+Left = 53
+TabIndex = 6
+Top = 11
+Width = 70
+Name = "folio"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_0QI16K685</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda3</objname>
+		<parent>Formamsl1</parent>
+		<properties>BorderStyle = 0
+Caption = "Descripción:"
+Height = 16
+Left = 21
+Top = 44
+Width = 62
+TabIndex = 7
+Name = "Leyenda3"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_0QI16K686</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>Desc</objname>
+		<parent>Formamsl1</parent>
+		<properties>Height = 21
+Left = 80
+TabIndex = 1
+Top = 39
+Width = 220
+Name = "Desc"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4DC0LLQ7K</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda6</objname>
+		<parent>Formamsl1</parent>
+		<properties>BorderStyle = 0
+Caption = "Desc. Corta:"
+Height = 16
+Left = 21
+Top = 67
+Width = 62
+TabIndex = 8
+Name = "Leyenda6"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4DC0LLQ7L</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>texto</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>textbox</baseclass>
+		<objname>DesCorta</objname>
+		<parent>Formamsl1</parent>
+		<properties>Height = 21
+Left = 80
+TabIndex = 2
+Top = 62
+Width = 220
+Name = "DesCorta"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4DC0LLQ7M</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda12</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Status:"
+Left = 40
+Top = 90
+TabIndex = 9
+Name = "Leyenda12"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4DC0LLQ7N</uniqueid>
+		<timestamp>1187533933</timestamp>
+		<class>combobox</class>
+		<classloc/>
+		<baseclass>combobox</baseclass>
+		<objname>Combo1</objname>
+		<parent>Formamsl1</parent>
+		<properties>RowSourceType = 1
+RowSource = "Activo,Inactivo"
+Height = 24
+Left = 81
+Style = 2
+TabIndex = 3
+Top = 84
+Width = 100
+Name = "Combo1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_0QI16LU3I</uniqueid>
+		<timestamp>1187548931</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\cheques2.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Save</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 120
+Left = 130
+Height = 20
+Width = 60
+Caption = "Grabar"
+TabIndex = 4
+Visible = (iif(substr(gnivel,22,1)='*', .T.,.F.))
+ZOrderSet = 9
+Name = "Save"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+With ThisForm
+	If (.nModo == 1) or (.nModo == 2)
+		If not .ValidaInfo()
+			Return
+		Endif
+	Endif
+
+
+	Do Case
+		Case .nModo == 1
+			
+			If GetNY('¿Seguro que desea agregar la forma de pago?')
+			
+				Select FormaPago
+				Append Blank
+				
+				if not opendbf('CiaWs')
+					Return .F.
+				ENDIF
+				
+				.folio.Value = ciaws.NumFormP
+				
+				Sele CiaWs
+				Replace	NumFormP	with padl(allt(SigDoc(ciaws.NumFormP)),5)
+				
+				Sele ciaws
+				use
+				
+				.SaveInfo()
+				.Release
+			ENDIF
+			
+		Case .nModo == 2
+			
+			If GetNY('¿Seguro que desea modificar la forma de pago?')
+			
+				*Sele marca
+				*SDAddEvent('AddMar',marca.nummar,"","",3)
+				
+				.SaveInfo()
+				.Release
+			
+			ENDIF
+			
+		Case .nModo == 3
+			If GetNY('¿Seguro que desea borrar la forma de pago?')
+				
+				*Sele marca
+				*SDAddEvent('AddMar',marca.nummar,"","",3)
+				
+				Select FormaPago
+				Delete
+			Endif
+			.Release
+
+	EndCase
+EndWith	
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>RESERVED</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties>Arial, 0, 9, 5, 15, 12, 32, 3, 0
+Arial, 1, 12, 8, 20, 15, 42, 4, 1
+Arial, 0, 8, 5, 14, 11, 29, 3, 0
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+</VFPData>

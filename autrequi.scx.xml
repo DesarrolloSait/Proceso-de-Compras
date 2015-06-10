@@ -1,0 +1,2258 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<VFPData>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>Screen</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties/>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1>VERSION =   3.00</reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8>..\..\msllib60\msllib60.vcx</reserved8>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX4</uniqueid>
+		<timestamp>1133285095</timestamp>
+		<class>dataenvironment</class>
+		<classloc/>
+		<baseclass>dataenvironment</baseclass>
+		<objname>Dataenvironment</objname>
+		<parent/>
+		<properties>Left = 1
+Top = 220
+Width = 520
+Height = 200
+Name = "Dataenvironment"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2>1</reserved2>
+		<reserved3/>
+		<reserved4>2</reserved4>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX5</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>formamsl</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>form</baseclass>
+		<objname>Formamsl1</objname>
+		<parent/>
+		<properties>Height = 365
+Width = 1063
+DoCreate = .T.
+Caption = "Autorizacion de Requisiciones"
+Name = "Formamsl1"
+Marco.ZOrderSet = 1
+Marco.Name = "Marco"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Init
+*Init
+If not opendbf ('Docum','Tiponum')or;
+	not opendbf ('Provedor','Numprov')or;
+	not opendbf ('Almacen','Numalm')
+	Return .F.
+Endif
+
+WITH THISFORM
+
+	* Variables
+	.leefecha1.Setvalue(date(year(date()),month(date()),1))
+	.leefecha2.Setvalue(Date())
+	
+	.Opciones.opcion3.value = 1
+	
+	.Usuario.value = Numuser + '  ' + Nomuser
+	*Cursor
+	Create Cursor Tempg (;
+	    Numdoc	 	C(10),;
+	    Fecha		D(8),;
+		Numprov 	C(5),;
+		Nomprov  	C(60),;
+		Subtot		N(12,2),;
+		Saldo		N(12,4),;
+		Autoriza 	L(1),;
+		ClavAut		C(5),;
+		Yamodi		L(1),;
+		Autoriza2 	L(1),;
+		ClavAut2	C(5),;
+		Yamodi2		L(1),;
+		Comprador	C(50),;
+		Referen		C(50),;
+		OC			C(50),;
+		Nomalm		C(30))
+	
+	*Cosultar
+	nOpcion = .Opciones.value
+	
+	DO CASE
+	
+		CASE nOpcion = 1
+			.ConsDepto()
+			
+		CASE nOpcion = 2
+			.Conscomp()
+		
+		CASE nOpcion = 3
+			.Consultar()
+	
+	ENDCASE
+
+	* Muestra los datos de tempoca
+	.LockScreen = .T.
+	With ThisForm.Grid1
+		.RecordSourceType = 1
+		.RecordSource = 'Tempg'
+		.Column1.ControlSource  = 'Mexdate2(Tempg.Fecha)'
+		.Column2.ControlSource  = 'Tempg.Numdoc'
+		.Column3.ControlSource  = 'Tempg.Numprov'
+		.Column4.ControlSource  = 'Allt(Tempg.Nomprov)'
+		.Column7.ControlSource  = 'Tempg.Subtot'
+		.Column6.ControlSource  = 'Tempg.Autoriza'
+		.Column8.ControlSource  = 'Tempg.ClavAut'
+		.Column5.ControlSource  = 'Tempg.Saldo'
+		.Column9.ControlSource  = 'Tempg.Autoriza2'
+		.Column10.ControlSource  = 'Tempg.ClavAut2'
+		.Column11.ControlSource  = 'Tempg.Comprador'
+		.Column12.ControlSource  = 'Tempg.Referen'
+		.Column13.ControlSource  = 'Tempg.OC'
+		.Column14.ControlSource  = 'Tempg.Nomalm'
+		.Setfocus
+	Endwit
+	.LockScreen = .f.
+		
+	* Colorear renglón activo.
+	Thisform.Activerecno=0
+	.SetAll('DynamicBackColor', 'iif(Recno("Tempg")==ThisForm.ActiveRecno, RGB(255,255,200), RGB(255,255,255))', 'Column')
+
+
+	* Muestra mensaje si no se encontro soporte
+	If Reccount('Tempg')==0
+		Alerta('No se encontró informacion')
+		Return
+	Endif
+
+	.Command1.visible = .F.
+	.Command3.visible = .F.
+	.Grid1.Column6.Enabled = .F.
+	.Grid1.Column9.Enabled = .F.
+		
+	*Ocultar botones
+	iF Numuser == '   WS' or Numuser == ' VTSG' or Numuser == 'ADCEO' or Numuser == 'ADMOP' or Numuser == 'GCOMP' or Numuser == 'VTSP1' or Numuser == 'VTSP2' or Numuser == 'VTSP3'
+		
+		.Command1.visible = .T.
+		.Grid1.Column6.Enabled = .T.
+		
+	Else
+		
+		.Command1.visible = .F.
+		.Grid1.Column6.Enabled = .F.
+		
+	Endif
+	
+	*Ocultar botones
+	iF Numuser == '   WS' or Numuser == ' ADMF' or Numuser == 'ADCEO'
+	
+		.Command3.visible = .T.
+		.Grid1.Column9.Enabled = .T.
+	
+	Else
+		
+		.Command3.visible = .F.
+		.Grid1.Column9.Enabled = .F.
+		
+	Endif
+	
+EndWith
+
+	
+	
+ENDPROC
+PROCEDURE conscomp
+*Consultar
+
+WITH THISFORM
+	
+	*Borrar Tabla
+	Sele Tempg
+	zap
+	
+	*Variables
+	cNumprov 	= .Leeprov1.Numprov.value
+	vFecha1		= .LeeFecha1.Value
+	vFecha2		= .LeeFecha2.Value
+	cNumAlm		= .LeeAlm1.Numalm.value
+		
+	csql =  '  Select Docum.Fecha, Docum.Tipodoc, Docum.Numdoc, NVL(Docum.Numprov,"") AS Numprov, Docum.Numalm, Docum.DatosExtra, ' + ;
+	              ' Docum.Importe, Docum.Impuesto1, Docum.Impuesto2, Docum.Descuento, Docum.Autoriza, ' + ;
+	              ' NVL(Provedor.Nomprov,"") AS Nomprov, Docum.ClavAut, NVL(Provedor.Saldo,0) AS Saldo, Docum.Autoriza2, Docum.ClavAut2 ' + ;
+	        '  From Docum ' + ;
+	            ' Left Join Provedor on Docum.Numprov = Provedor.Numprov ' + ;
+	          '  Where Between(Docum.Fecha , m.Val2, m.Val3) and ' +;
+	          		 ' Docum.Tipodoc  == "RQ" and ' +;
+	          		 ' Docum.Autoriza2 = .F.   and ' +;
+	          		 ' Docum.Status &lt;&gt; 1   and ' +;
+	     iIF(Empty(cNumprov),".T.", "Docum.Numprov = m.Val1 ") + ' And '+;
+	     iIF(Empty(cNumAlm),".T.", "Docum.NumAlm = m.Val4 ") +;
+	          		 ' Order by Docum.Numdoc '
+		
+	
+	if not sqlmsl( 'TempPed', csql, cNumprov, vFecha1, vFecha2, cNumalm )
+		return
+	endif
+				
+
+	Sele TempPed
+	Scan
+		
+		Sele Almacen
+		=Seek(Tempped.Numalm,'Almacen','Numalm')
+		iF Found()
+			Sele Almacen
+				cNomalm = Almacen.Nomalm
+		Else
+			cNomalm = ""
+		Endif
+		
+		*Pasar datos a Tempg
+		Sele Tempg
+			Append Blank
+				Replace	Fecha		with	TempPed.Fecha,;
+						Numdoc		with	TempPed.Numdoc,;
+						Numprov		with	TempPed.Numprov,;
+						Nomprov		with	TempPed.Nomprov,;
+						Subtot		with	TempPed.Importe - TempPed.Descuento + TempPed.Impuesto1 + TempPed.Impuesto2,;
+						Autoriza 	with	TempPed.Autoriza,;
+						ClavAut		with	Allt(TempPed.ClavAut),;
+						Yamodi		with	iIF(TempPed.Autoriza=.T.,.T.,.F.),;
+						Autoriza2 	with	TempPed.Autoriza2,;
+						ClavAut2	with	TempPed.ClavAut2,;
+						Yamodi2		with	iIF(TempPed.Autoriza2=.T.,.T.,.F.),;
+						Saldo		with	TempPed.Saldo,;
+						Comprador	with    Allt(ValProp(TempPed.datosextra, "Comprador")),;
+						Referen		with	Allt(ValProp(TempPed.datosextra, "Referencia")),;
+						OC			with	Allt(ValProp(TempPed.datosextra, "Documento")),;
+						Nomalm		with	cNomalm
+		
+	  Sele TempPed
+	
+	Endscan
+	
+	Sele Tempg
+	GO TOP
+	
+	*Actualizar Grid
+	.Grid1.Refresh()
+	
+ENDWITH
+	
+	
+ENDPROC
+PROCEDURE consdepto
+*Consultar
+
+WITH THISFORM
+	
+	*Borrar Tabla
+	Sele Tempg
+	zap
+	
+	*Variables
+	cNumprov 	= .Leeprov1.Numprov.value
+	vFecha1		= .LeeFecha1.Value
+	vFecha2		= .LeeFecha2.Value
+	cNumAlm		= .LeeAlm1.Numalm.value
+		
+	csql =  '  Select Docum.Fecha, Docum.Tipodoc, Docum.Numdoc, Docum.Numprov, Docum.Numalm, Docum.DatosExtra, ' + ;
+	              ' Docum.Importe, Docum.Impuesto1, Docum.Impuesto2, Docum.Descuento, Docum.Autoriza, ' + ;
+	              ' Provedor.Nomprov, Docum.ClavAut, Provedor.Saldo, Docum.Autoriza2, Docum.ClavAut2 ' + ;
+	        '  From Docum ' + ;
+	            ' Left Join Provedor on Docum.Numprov = Provedor.Numprov ' + ;
+	          '  Where Between(Docum.Fecha , m.Val2, m.Val3) and ' +;
+	          		 ' Docum.Tipodoc  == "RQ" and ' +;
+	          		 ' Docum.Autoriza = .F.   and ' +;
+	          		 ' Docum.Status &lt;&gt; 1   and ' +;
+	     iIF(Empty(cNumprov),".T.", "Docum.Numprov = m.Val1 ") + ' And '+;
+	     iIF(Empty(cNumAlm),".T.", "Docum.NumAlm = m.Val4 ") +;
+	          		 ' Order by Docum.Numdoc '
+		
+	
+	if not sqlmsl( 'TempPed', csql, cNumprov, vFecha1, vFecha2, cNumalm )
+		return
+	endif
+				
+
+	Sele TempPed
+	Scan
+		
+		Sele Almacen
+		=Seek(Tempped.Numalm,'Almacen','Numalm')
+		iF Found()
+			Sele Almacen
+				cNomalm = Almacen.Nomalm
+		Else
+			cNomalm = ""
+		Endif
+		
+		*Pasar datos a Tempg
+		Sele Tempg
+			Append Blank
+				Replace	Fecha		with	TempPed.Fecha,;
+						Numdoc		with	TempPed.Numdoc,;
+						Numprov		with	TempPed.Numprov,;
+						Nomprov		with	TempPed.Nomprov,;
+						Subtot		with	TempPed.Importe - TempPed.Descuento,;
+						Autoriza 	with	TempPed.Autoriza,;
+						ClavAut		with	TempPed.ClavAut,;
+						Yamodi		with	iIF(TempPed.Autoriza=.T.,.T.,.F.),;
+						Autoriza2 	with	TempPed.Autoriza2,;
+						ClavAut2	with	TempPed.ClavAut2,;
+						Yamodi2		with	iIF(TempPed.Autoriza2=.T.,.T.,.F.),;
+						Saldo		with	TempPed.Saldo,;
+						Comprador	with    Allt(ValProp(TempPed.datosextra, "Comprador")),;
+						Referen		with	Allt(ValProp(TempPed.datosextra, "Referencia")),;
+						OC			with	Allt(ValProp(TempPed.datosextra, "Documento")),;
+						Nomalm		with	cNomalm
+		
+	  Sele TempPed
+	
+	Endscan
+	
+	Sele Tempg
+	GO TOP
+	
+	*Actualizar Grid
+	.Grid1.Refresh()
+	
+ENDWITH
+	
+	
+ENDPROC
+PROCEDURE consultar
+*Consultar
+
+WITH THISFORM
+	
+	*Borrar Tabla
+	Sele Tempg
+	zap
+	
+	*Variables
+	cNumprov 	= .Leeprov1.Numprov.value
+	vFecha1		= .LeeFecha1.Value
+	vFecha2		= .LeeFecha2.Value
+	cNumAlm		= .LeeAlm1.Numalm.value
+		
+	csql =  '  Select Docum.Fecha, Docum.Tipodoc, Docum.Numdoc, Docum.Numprov, Docum.DatosExtra, Docum.Numalm, ' + ;
+	              ' Docum.Importe, Docum.Impuesto1, Docum.Impuesto2, Docum.Descuento, Docum.Autoriza, ' + ;
+	              ' Provedor.Nomprov, Docum.ClavAut, Provedor.Saldo, Docum.Autoriza2, Docum.ClavAut2 ' + ;
+	        '  From Docum ' + ;
+	            ' Left Join Provedor on Docum.Numprov = Provedor.Numprov ' + ;
+	          '  Where Between(Docum.Fecha , m.Val2, m.Val3) and ' +;
+	          		 ' Docum.Tipodoc  == "RQ" and ' +;
+	          		 ' Docum.Status &lt;&gt; 1   and ' +;
+	     iIF(Empty(cNumprov),".T.", "Docum.Numprov = m.Val1 ") + ' And '+;
+	     iIF(Empty(cNumAlm),".T.", "Docum.NumAlm = m.Val4 ") +;
+	          		 ' Order by Docum.Numdoc '
+		
+	
+	if not sqlmsl( 'TempPed', csql, cNumprov, vFecha1, vFecha2, cNumalm )
+		return
+	endif
+				
+
+	Sele TempPed
+	Scan
+			
+			
+		Sele Almacen
+		=Seek(Tempped.Numalm,'Almacen','Numalm')
+		iF Found()
+			Sele Almacen
+				cNomalm = Almacen.Nomalm
+		Else
+			cNomalm = ""
+		Endif
+		
+		*Pasar datos a Tempg
+		Sele Tempg
+			Append Blank
+				Replace	Fecha		with	TempPed.Fecha,;
+						Numdoc		with	TempPed.Numdoc,;
+						Numprov		with	TempPed.Numprov,;
+						Nomprov		with	TempPed.Nomprov,;
+						Subtot		with	TempPed.Importe - TempPed.Descuento + TempPed.Impuesto1 + TempPed.Impuesto2,;
+						Autoriza 	with	TempPed.Autoriza,;
+						ClavAut		with	Allt(TempPed.ClavAut),;
+						Yamodi		with	iIF(TempPed.Autoriza=.T.,.T.,.F.),;
+						Autoriza2 	with	TempPed.Autoriza2,;
+						ClavAut2	with	TempPed.ClavAut2,;
+						Yamodi2		with	iIF(TempPed.Autoriza2=.T.,.T.,.F.),;
+						Saldo		with	TempPed.Saldo,;
+						Comprador	with    Allt(ValProp(TempPed.datosextra, "Comprador")),;
+						Referen		with	Allt(ValProp(TempPed.datosextra, "Referencia")),;
+						OC			with	Allt(ValProp(TempPed.datosextra, "Documento")),;
+						Nomalm		with	cNomalm
+		
+	  Sele TempPed
+	
+	Endscan
+	
+	Sele Tempg
+	GO TOP
+	
+	*Actualizar Grid
+	.Grid1.Refresh()
+	
+ENDWITH
+	
+	
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3>activerecno
+*consultar 
+*consdepto 
+*conscomp 
+</reserved3>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXC</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid1</objname>
+		<parent>Formamsl1</parent>
+		<properties>ColumnCount = 14
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 241
+Left = 20
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 2
+Top = 91
+Width = 1020
+ZOrderSet = 2
+Name = "Grid1"
+Column1.FontSize = 8
+Column1.Width = 74
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 64
+Column2.Name = "Column2"
+Column3.FontSize = 8
+Column3.ColumnOrder = 4
+Column3.Width = 26
+Column3.Name = "Column3"
+Column4.FontSize = 8
+Column4.ColumnOrder = 5
+Column4.Width = 133
+Column4.Name = "Column4"
+Column5.FontSize = 8
+Column5.ColumnOrder = 11
+Column5.CurrentControl = "Autorizo"
+Column5.Width = 63
+Column5.Sparse = .F.
+Column5.Name = "Column6"
+Column6.FontSize = 8
+Column6.ColumnOrder = 10
+Column6.Width = 67
+Column6.Format = "!Kz"
+Column6.InputMask = "999,9999,999.99"
+Column6.Name = "Column7"
+Column7.FontSize = 8
+Column7.ColumnOrder = 12
+Column7.CurrentControl = "Text1"
+Column7.Width = 42
+Column7.ReadOnly = .T.
+Column7.Format = ""
+Column7.Name = "Column8"
+Column8.FontSize = 8
+Column8.ColumnOrder = 9
+Column8.Width = 78
+Column8.Format = "!Kz"
+Column8.InputMask = "999,999,999.99"
+Column8.Name = "Column5"
+Column9.FontSize = 8
+Column9.ColumnOrder = 13
+Column9.CurrentControl = "Autorizo2"
+Column9.Width = 64
+Column9.Sparse = .F.
+Column9.Name = "Column9"
+Column10.FontSize = 8
+Column10.ColumnOrder = 14
+Column10.Width = 49
+Column10.Name = "Column10"
+Column11.FontSize = 8
+Column11.ColumnOrder = 6
+Column11.Width = 77
+Column11.Name = "Column11"
+Column12.FontSize = 8
+Column12.ColumnOrder = 7
+Column12.Width = 77
+Column12.Name = "Column12"
+Column13.FontSize = 8
+Column13.ColumnOrder = 8
+Column13.Width = 84
+Column13.Name = "Column13"
+Column14.FontSize = 8
+Column14.ColumnOrder = 3
+Column14.Width = 73
+Column14.Name = "Column14"
+</properties>
+		<protected/>
+		<methods>PROCEDURE AfterRowColChange
+LPARAMETERS nColIndex
+
+* Colorear renglón
+if select('Tempg')&gt;0
+	Select Tempg
+	ThisForm.ActiveRecno = Recno()
+	this.Refresh()
+	
+endif
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXD</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Fecha"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXE</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXF</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Documento"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXG</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+	cFolio = padl(allt(Tempg.Numdoc),10)
+
+	DoForm('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXH</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Clave"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXI</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+WITH THISFORM
+
+*	If nKeycode = -2
+*		
+*		*Tomar variables
+*		Sele Tempg
+*		nRec = Recno()
+*		cNumprov = Padl(Allt(Tempg.Numcli),5)
+*		
+*		*Traer la ventana	
+*		Doform('Saldos',cNumcli)
+*			
+*		GO nRec
+*
+*	ENDIF
+
+ENDWITH
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXJ</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+Alignment = 0
+Caption = "Proveedor"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXK</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXN</uniqueid>
+		<timestamp>1181508038</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Compas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXO</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+
+*Clik autorizacion
+
+WITH THISFORM
+
+	If This.value = .T.
+	
+		Sele Tempg
+			Replace ClavAut	with	Allt(Numuser)
+			
+	Else	
+		
+		Sele Tempg
+			Replace	ClavAut With	''
+			
+	Endif
+	
+	.Grid1.Refresh()
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y90KUHGC</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>checkbox</class>
+		<classloc/>
+		<baseclass>checkbox</baseclass>
+		<objname>Autorizo</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>Top = 20
+Left = 354
+Height = 17
+Width = 16
+FontSize = 8
+Caption = ""
+Name = "Autorizo"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+
+*Clik autorizacion
+
+WITH THISFORM
+
+	If This.value = .T.
+	
+		Sele Tempg
+			Replace ClavAut	with	Allt(Numuser)
+			
+	Else	
+		
+		Sele Tempg
+			Replace	ClavAut With	''
+			
+	Endif
+	
+	.Grid1.Refresh()
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXP</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Total"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXQ</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+InputMask = "999,999,999.99"
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXR</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Autorizo"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXS</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3YX0V0INK</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Saldo"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3YX0V0INL</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0L70YF</uniqueid>
+		<timestamp>1181508038</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column9</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Finanzas"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0L70YG</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column9</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0LM4M4</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>checkbox</class>
+		<classloc/>
+		<baseclass>checkbox</baseclass>
+		<objname>Autorizo2</objname>
+		<parent>Formamsl1.Grid1.Column9</parent>
+		<properties>Top = 50
+Left = 493
+Height = 17
+Width = 17
+FontSize = 8
+Caption = ""
+Name = "Autorizo2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+WITH THISFORM
+
+	If This.value = .T.
+	
+		Sele Tempg
+			Replace ClavAut2	with	Allt(Numuser)
+			
+	Else	
+		
+		Sele Tempg
+			Replace	ClavAut2 With	''
+			
+	Endif
+	
+	.Grid1.Refresh()
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0L70YH</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column10</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Autorizo"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0L70YI</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column10</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0OW</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column11</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Comprador"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0OX</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column11</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0OY</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column12</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Referencia"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0OZ</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column12</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0P0</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column13</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "OC"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0P1</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column13</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0P2</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column14</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Almacen"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4AW0NA0P3</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column14</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXT</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>commandbutton</class>
+		<classloc/>
+		<baseclass>commandbutton</baseclass>
+		<objname>Command2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 28
+Left = 876
+Height = 32
+Width = 82
+FontSize = 8
+Caption = "Consultar"
+ZOrderSet = 3
+Name = "Command2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Boton consultar
+WITH THISFORM
+	
+	nOpcion = .Opciones.value
+	
+	DO CASE
+	
+		CASE nOpcion = 1
+			.ConsDepto()
+			
+		CASE nOpcion = 2
+			.Conscomp()
+		
+		CASE nOpcion = 3
+			.Consultar()
+	
+	ENDCASE
+
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX4</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>commandbutton</class>
+		<classloc/>
+		<baseclass>commandbutton</baseclass>
+		<objname>Command1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 92
+Left = 787
+Height = 15
+Width = 58
+FontSize = 8
+Caption = "Compras"
+TabIndex = 14
+ZOrderSet = 4
+Name = "Command1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Autorizar Requi
+WITH THISFORM
+		
+		cNumUser = Numuser
+	
+		Sele Tempg	
+		Scan
+			
+			*If Tempg.Autoriza == .T. And Tempg.Yamodi == .F.
+				
+				Sele Tempg
+				cTiponum = 'RQ' + Tempg.Numdoc
+				
+				Sele Docum
+				=Seek(cTiponum,'Docum','Tiponum')
+				If found()
+					Sele Docum
+						Replace Autoriza	with	Tempg.Autoriza,;
+								ClavAut		with	iiF(Tempg.Autoriza = .T.,iiF(Not Empty(Tempg.ClavAut),Tempg.ClavAut,Padl(Allt(cNumuser),5)),"")
+				Endif
+			
+			*Endif
+		
+		Endscan
+		
+		Aviso('Se han Autorizado los documentos')
+		
+	nOpcion = .Opciones.value
+	
+	DO CASE
+	
+		CASE nOpcion = 1
+			.ConsDepto()
+			
+		CASE nOpcion = 2
+			.Conscomp()
+		
+		CASE nOpcion = 3
+			.Consultar()
+	
+	ENDCASE
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX4</uniqueid>
+		<timestamp>1133285095</timestamp>
+		<class>leefecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leefecha1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 21
+Left = 60
+Width = 96
+Height = 24
+TabIndex = 1
+ZOrderSet = 5
+Name = "Leefecha1"
+Container1.Name = "Container1"
+Fecha.Name = "Fecha"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y70N1TWF</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Excel</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 28
+Left = 976
+Height = 23
+Width = 23
+Picture = r:\sait\cia008\excel.bmp
+Caption = ""
+TabIndex = 8
+ZOrderSet = 6
+Name = "Excel"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+
+If not opendbf ('cia')
+	Return .F.
+Endif
+
+
+Sele Tempg
+
+With Thisform
+	* Mada a Excel la consulta	
+	cNomcia = Allt(Cia.NOMCIA)
+	cTitulo = .Caption
+	cColumnas = ''
+	cMascaras = ''
+	OpenExcel(cNomCia,cTitulo,cColumnas,cMascaras)
+	
+EndWith
+
+Sele cia
+use
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX5</uniqueid>
+		<timestamp>1181508038</timestamp>
+		<class>leefecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leefecha2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 21
+Left = 180
+Width = 96
+Height = 24
+TabIndex = 2
+ZOrderSet = 7
+Name = "Leefecha2"
+Container1.Name = "Container1"
+Fecha.Name = "Fecha"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXC</uniqueid>
+		<timestamp>1181508038</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda7</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Al "
+Left = 161
+Top = 24
+TabIndex = 11
+ZOrderSet = 8
+Name = "Leyenda7"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQXD</uniqueid>
+		<timestamp>1164792562</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda8</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Fecha"
+Left = 25
+Top = 24
+TabIndex = 20
+ZOrderSet = 9
+Name = "Leyenda8"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX4</uniqueid>
+		<timestamp>1181505544</timestamp>
+		<class>label</class>
+		<classloc/>
+		<baseclass>label</baseclass>
+		<objname>Label1</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontSize = 8
+Caption = "Para ver historial de Pagos preciona F3 sobre clave del Proveedor"
+Height = 17
+Left = 23
+Top = 335
+Visible = .F.
+Width = 329
+ZOrderSet = 10
+Name = "Label1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX4</uniqueid>
+		<timestamp>1133285095</timestamp>
+		<class>leeprov</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leeprov1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 44
+Left = 4
+Width = 426
+Height = 20
+ZOrderSet = 11
+Name = "Leeprov1"
+NumProv.Name = "NumProv"
+bProv.Name = "bProv"
+NomProv.Height = 20
+NomProv.Left = 155
+NomProv.Top = 0
+NomProv.Width = 271
+NomProv.Name = "NomProv"
+Label20.Name = "Label20"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX4</uniqueid>
+		<timestamp>1167151470</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Usuario</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Height = 21
+Left = 321
+ReadOnly = .T.
+Top = 23
+Visible = .F.
+Width = 140
+ZOrderSet = 12
+Name = "Usuario"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX5</uniqueid>
+		<timestamp>1164797226</timestamp>
+		<class>label</class>
+		<classloc/>
+		<baseclass>label</baseclass>
+		<objname>Label2</objname>
+		<parent>Formamsl1</parent>
+		<properties>FontSize = 8
+Caption = "Persona que Autorizara Ordenes de Compra:"
+Height = 17
+Left = 302
+Top = 9
+Visible = .F.
+Width = 160
+ZOrderSet = 13
+Name = "Label2"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0QGJ1Z</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>optiongroup</class>
+		<classloc/>
+		<baseclass>optiongroup</baseclass>
+		<objname>Opciones</objname>
+		<parent>Formamsl1</parent>
+		<properties>ButtonCount = 3
+Value = 0
+Height = 60
+Left = 790
+Top = 20
+Width = 71
+ZOrderSet = 16
+Name = "Opciones"
+Option1.FontSize = 8
+Option1.Caption = "Depto."
+Option1.Value = 0
+Option1.Height = 17
+Option1.Left = 5
+Option1.Top = 5
+Option1.Width = 61
+Option1.Name = "Opcion1"
+Option2.FontSize = 8
+Option2.Caption = "Compras"
+Option2.Height = 17
+Option2.Left = 5
+Option2.Top = 24
+Option2.Width = 61
+Option2.Name = "Opcion2"
+Option3.FontSize = 8
+Option3.Caption = "Todos"
+Option3.Height = 17
+Option3.Left = 5
+Option3.Top = 43
+Option3.Width = 61
+Option3.Name = "Opcion3"
+</properties>
+		<protected/>
+		<methods>PROCEDURE AddObject
+LPARAMETERS cName, cClass
+
+
+ENDPROC
+PROCEDURE InteractiveChange
+*Interactive
+
+WITH THISFORM
+	
+	nOpcion = .Opciones.value
+	
+	DO CASE
+	
+		CASE nOpcion = 1
+			.ConsDepto()
+			
+		CASE nOpcion = 2
+			.Conscomp()
+		
+		CASE nOpcion = 3
+			.Consultar()
+	
+	ENDCASE
+
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_47J0M85ZO</uniqueid>
+		<timestamp>1187090907</timestamp>
+		<class>commandbutton</class>
+		<classloc/>
+		<baseclass>commandbutton</baseclass>
+		<objname>Command3</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 92
+Left = 894
+Height = 16
+Width = 60
+FontSize = 8
+Caption = "Finanzas"
+TabIndex = 14
+ZOrderSet = 14
+Name = "Command3"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Autorizar Requi
+WITH THISFORM
+		
+		cNumUser = Numuser
+	
+		Sele Tempg	
+		Scan
+			
+			*If Tempg.Autoriza2 == .T. And Tempg.Yamodi2 == .F.
+				
+				Sele Tempg
+				cTiponum = 'RQ' + Tempg.Numdoc
+				
+				Sele Docum
+				=Seek(cTiponum,'Docum','Tiponum')
+				If found()
+					Sele Docum
+						Replace Autoriza2	with	Tempg.Autoriza2,;
+								ClavAut2	with	iiF(Tempg.Autoriza2 = .T.,iiF(Not Empty(Tempg.ClavAut2),Tempg.ClavAut2,Padl(Allt(cNumuser),5)),"")
+				Endif
+			
+			*Endif
+		
+		Endscan
+		
+		Aviso('Se han Autorizado los documentos')
+		
+	nOpcion = .Opciones.value
+	
+	DO CASE
+	
+		CASE nOpcion = 1
+			.ConsDepto()
+			
+		CASE nOpcion = 2
+			.Conscomp()
+		
+		CASE nOpcion = 3
+			.Consultar()
+	
+	ENDCASE
+	
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3Y511TQX5</uniqueid>
+		<timestamp>1181508038</timestamp>
+		<class>leealm</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leealm1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 65
+Left = 33
+Name = "Leealm1"
+NumAlm.Name = "NumAlm"
+NomAlm.Name = "NomAlm"
+Label8.Name = "Label8"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>RESERVED</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties>Arial, 0, 9, 5, 15, 12, 32, 3, 0
+Arial, 0, 8, 5, 14, 11, 29, 3, 0
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1></reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+</VFPData>

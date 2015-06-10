@@ -1,0 +1,1461 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<VFPData>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>Screen</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties/>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1>VERSION =   3.00</reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8>..\..\msllib60\msllib60.vcx</reserved8>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGG</uniqueid>
+		<timestamp>1079590761</timestamp>
+		<class>dataenvironment</class>
+		<classloc/>
+		<baseclass>dataenvironment</baseclass>
+		<objname>Dataenvironment</objname>
+		<parent/>
+		<properties>Name = "Dataenvironment"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2>1</reserved2>
+		<reserved3/>
+		<reserved4>2</reserved4>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGH</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>formamsl</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>form</baseclass>
+		<objname>Formamsl1</objname>
+		<parent/>
+		<properties>Height = 428
+Width = 733
+DoCreate = .T.
+Caption = "Catalogo de Requisiciones"
+Name = "Formamsl1"
+Marco.Name = "Marco"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Activate
+* activate
+
+Thisform.Consultar()
+ENDPROC
+PROCEDURE Init
+* Init
+if not opendbf ('provedor','Numprov')Or;
+	not opendbf ('docum','tiponum') or ;
+	not opendbf ('movim','tiponumpar') or;
+	not opendbf ('arts','numart') or;
+	not opendbf ('usuarios','numuser') or;
+	not opendbf ('Almacen','numAlm')
+		
+	return .F.
+endif
+
+WITH THISFORM
+
+	*Variables
+	.leefecha1.Setvalue(date(year(date()),month(date()),1))
+	.leefecha2.Setvalue(Date())
+	
+	*Cursor
+	Create Cursor Tempg (;	
+		numdoc		 C(10),;
+		Fecha 		 D(8),;
+		Numprov		 C(10),;
+		NomProv	     C(30),;
+		NomCli 		 C(30),;
+		Importe  	 N(12,2),;
+		Impuesto1    N(12,2),;
+		Divisa		 C(1),;
+		NumProy		 C(30),;
+		STATUS  	 C(20),;
+		Total		 N(12,2),;
+		Docpost		 C(10))	
+			
+	*Indice para ordenar
+	Index on Numdoc Tag NumDoc
+	Set order to numdoc
+			
+	* Consultar
+	.Consultar()
+
+	* Colorear renglón activo.
+	thisform.activerecno=0
+	.SetAll('DynamicBackColor', 'iif(Recno("tempg")==ThisForm.ActiveRecno, RGB(255,255,200), RGB(255,255,255))', 'Column')
+
+
+	* Muestra mensaje si no se encontro soporte
+	If Reccount('tempg')==0
+		Alerta('No se encontró informacion')
+		Return
+	Endif
+
+EndWith
+	
+ENDPROC
+PROCEDURE consultar
+* Consultar
+WITH THISFORM
+	
+	Sele tempg
+	Zap
+
+	* Variables locales
+	vFecha1		= .LeeFecha1.Value
+	vFecha2		= .LeeFecha2.Value
+	cNumprov	= .Leeprov1.Numprov.value
+	cNumalm		= .Leealm1.Numalm.value
+
+	*consultar
+	if Not SqlMSL ('Temp' ,'Select Docum.numdoc, Docum.tipodoc, Docum.fecha , Docum.status,Docum.descuento, '+;
+	    ' Docum.numcli,	Docum.NumProv, Docum.importe,Docum.divisa, Docum.impuesto1, Docum.DocPost, Docum.Numalm '+;	
+		' from docum where docum.tipodoc = "RQ" and '+;
+		' Between(DOCUM.Fecha,m.Val1, m.Val2) And '+;
+		 Iif(Empty(cNumprov) ,".T." , " Docum.NumProv = m.Val3 ")+ ' and ' + ;
+		 Iif(Empty(cNumalm) ,".T." , " Docum.NumAlm = m.Val4 ") + ;
+	   		' order by Numdoc ', vFecha1,VFecha2,cNumprov,cNumalm)
+		return
+	endif
+	
+	* Pasando valors a Tempg		
+	Sele Temp
+	SCAN	
+	
+		cstatus = ''
+		
+		* Do Case para Estatus
+		DO CASE
+			
+			CASE temp.status =  9
+			cstatus = 'Ordenada'
+			
+			CASE Temp.status =  1
+			cstatus = 'Cancelada'
+		
+		ENDCASE	
+	
+		sele Provedor
+		= Seek(temp.Numprov,'Provedor','NUMPROV')
+		cNomProv= Provedor.NomProv
+		
+		
+		
+		Sele tempg
+			Appen Blank
+				Replace numdoc    with	Temp.numdoc,;
+						Fecha	  with 	Temp.Fecha,;
+						Nomprov   with 	cNomprov,;
+						status    with  cStatus,;
+						Importe   with  Temp.importe,;
+						Impuesto1 with  Temp.impuesto1,;
+						Divisa    with  Temp.divisa,;
+						Total     with  (Temp.importe+temp.impuesto1)-temp.descuento,;
+						DocPost	  with	Allt(Temp.Docpost)
+				
+		Sele temp
+		
+	ENDSCAN
+
+	*Muestra los datos de tempoca
+	.LockScreen = .t.
+		With ThisForm.Grid1
+			.RecordSourceType = 1
+			Select tempg
+			go bott
+			for i= 1 to 15
+				if not bof()
+					skip -1
+				endif
+			endfor
+				
+			.RecordSource = 'Tempg'
+			.Column1.ControlSource = 'Allt(tempg.NUMDOC)'
+			.Column2.ControlSource = 'MEXDATE2(tempg.FECHA)'
+			.Column3.ControlSource = 'Tempg.Nomprov'
+			.Column4.ControlSource = 'Tempg.Importe'
+			.Column5.ControlSource = 'Tempg.Impuesto1'
+			.Column6.ControlSource = 'Tempg.Divisa'
+			.Column7.ControlSource = 'Tempg.Status'
+			.Column8.ControlSource = 'Tempg.Total'
+			.Column9.ControlSource = 'Tempg.DocPost'
+			.setfocus
+			.refresh
+	EndWith
+	.LockScreen = .f.
+
+ENDWITH
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3>activerecno
+*consultar 
+*validainfo 
+*saveinfo 
+*cargarinfo 
+</reserved3>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGI</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 620
+Left = 930
+Height = 25
+Width = 60
+Caption = "Agregar"
+Enabled = .F.
+TabIndex = 1
+Visible = .F.
+Name = "Boton1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Alta
+doform('Requi1',1)
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CH6</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton4</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 15
+Left = 150
+Height = 25
+Width = 60
+Caption = "Modificar"
+TabIndex = 3
+Name = "Boton4"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Modificar
+Sele tempg
+cFolio =''
+
+cFolio = padl(allt(tempg.numdoc),10)
+
+doform('Requi1',2,recno(), cFolio)
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CH8</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 15
+Left = 80
+Height = 25
+Width = 60
+Caption = "Consultar"
+TabIndex = 2
+Name = "Boton2"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+thisform.Consultar()
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CH9</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Boton3</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 15
+Left = 210
+Height = 25
+Width = 60
+Caption = "Eliminar"
+TabIndex = 4
+Name = "Boton3"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+*Modificar
+Sele tempg
+cFolio =''
+cFolio = padl(allt(tempg.numdoc),10)
+
+doform('Requi1',3,recno(), cFolio)
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGG</uniqueid>
+		<timestamp>1079590761</timestamp>
+		<class>leefecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leefecha1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 19
+Left = 379
+Width = 96
+Height = 24
+TabIndex = 1
+ZOrderSet = 5
+Name = "Leefecha1"
+Container1.Name = "Container1"
+fecha.Name = "fecha"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CH2</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>boton</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>commandbutton</baseclass>
+		<objname>Excel</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 17
+Left = 290
+Height = 23
+Width = 23
+Picture = r:\sait\cia008\excel.bmp
+Caption = ""
+TabIndex = 14
+ZOrderSet = 6
+Name = "Excel"
+</properties>
+		<protected/>
+		<methods>PROCEDURE Click
+
+if not opendbf('CIA')
+	return .f.
+endif
+
+sele tempg
+
+With Thisform
+	* Mada a Excel la consulta	
+	cNomcia = Allt(Cia.NOMCIA)
+	cTitulo = .Caption
+	cColumnas = ''
+	cMascaras = ''
+	OpenExcel(cNomCia,cTitulo,cColumnas,cMascaras)
+	
+EndWith
+
+Sele cia
+use
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGH</uniqueid>
+		<timestamp>1182295308</timestamp>
+		<class>leefecha</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leefecha2</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 19
+Left = 499
+Width = 96
+Height = 24
+TabIndex = 2
+ZOrderSet = 7
+Name = "Leefecha2"
+Container1.Name = "Container1"
+fecha.Name = "fecha"
+Buscar.Name = "Buscar"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGI</uniqueid>
+		<timestamp>1182295308</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda7</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Al "
+Left = 480
+Top = 22
+TabIndex = 11
+ZOrderSet = 8
+Name = "Leyenda7"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CH6</uniqueid>
+		<timestamp>1182295308</timestamp>
+		<class>leyenda</class>
+		<classloc>..\..\msllib60\msllib60.vcx</classloc>
+		<baseclass>label</baseclass>
+		<objname>Leyenda8</objname>
+		<parent>Formamsl1</parent>
+		<properties>Caption = "Fecha"
+Left = 344
+Top = 22
+TabIndex = 20
+ZOrderSet = 9
+Name = "Leyenda8"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE5V</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>grid</class>
+		<classloc/>
+		<baseclass>grid</baseclass>
+		<objname>Grid1</objname>
+		<parent>Formamsl1</parent>
+		<properties>ColumnCount = 9
+FontSize = 8
+DeleteMark = .F.
+GridLines = 2
+Height = 309
+Left = 18
+Panel = 1
+RecordMark = .F.
+RowHeight = 17
+ScrollBars = 2
+TabIndex = 13
+Top = 100
+Width = 702
+Name = "Grid1"
+Column1.FontSize = 8
+Column1.Width = 56
+Column1.ReadOnly = .T.
+Column1.Visible = .T.
+Column1.Name = "Column1"
+Column2.FontSize = 8
+Column2.Width = 67
+Column2.ReadOnly = .T.
+Column2.Visible = .T.
+Column2.Name = "Column2"
+Column3.FontSize = 8
+Column3.ColumnOrder = 3
+Column3.Width = 162
+Column3.ReadOnly = .T.
+Column3.Visible = .T.
+Column3.Name = "Column3"
+Column4.FontSize = 8
+Column4.ColumnOrder = 4
+Column4.Width = 81
+Column4.ReadOnly = .T.
+Column4.Visible = .T.
+Column4.Format = "!kz"
+Column4.InputMask = "9,999,999.99"
+Column4.Name = "Column4"
+Column5.FontSize = 8
+Column5.ColumnOrder = 5
+Column5.Width = 71
+Column5.ReadOnly = .T.
+Column5.Visible = .T.
+Column5.Format = "!kz"
+Column5.InputMask = "9,999,999.99"
+Column5.Name = "Column5"
+Column6.FontSize = 8
+Column6.ColumnOrder = 6
+Column6.Width = 33
+Column6.ReadOnly = .T.
+Column6.Visible = .T.
+Column6.Name = "Column6"
+Column7.FontSize = 8
+Column7.ColumnOrder = 8
+Column7.Width = 79
+Column7.ReadOnly = .T.
+Column7.Name = "Column7"
+Column8.FontSize = 8
+Column8.ColumnOrder = 7
+Column8.Width = 74
+Column8.ReadOnly = .T.
+Column8.Format = "!Kz"
+Column8.InputMask = "999,999,999.99"
+Column8.Name = "Column8"
+Column9.FontSize = 8
+Column9.ColumnOrder = 9
+Column9.Width = 50
+Column9.ReadOnly = .T.
+Column9.Name = "Column9"
+</properties>
+		<protected/>
+		<methods>PROCEDURE AfterRowColChange
+LPARAMETERS nColIndex
+
+* Colorear renglón
+if select('tempg')&gt;0
+	Select Tempg
+	ThisForm.ActiveRecno = Recno()
+	this.Refresh()
+	
+endif
+
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE5W</uniqueid>
+		<timestamp>1082891915</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+Caption = "Documento"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE5X</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column1</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE5Y</uniqueid>
+		<timestamp>1082891915</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+Caption = "Fecha"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE5Z</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column2</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE60</uniqueid>
+		<timestamp>1090015273</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+Caption = "Proveedor"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE61</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column3</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE62</uniqueid>
+		<timestamp>1090015273</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+Caption = "Importe"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE63</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column4</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Format = "!kz"
+InputMask = "9,999,999.99"
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE64</uniqueid>
+		<timestamp>1089956995</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+Caption = "Impuesto"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE65</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column5</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Format = "!kz"
+InputMask = "9,999,999.99"
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE66</uniqueid>
+		<timestamp>1089956995</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+Caption = "Divisa"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3H616LE67</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column6</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+Visible = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3K20PCL01</uniqueid>
+		<timestamp>1164794126</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Status</objname>
+		<parent>Formamsl1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+Caption = "Status"
+Name = "Status"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3K20PCL02</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column7</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3K20PCL03</uniqueid>
+		<timestamp>1164794126</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Header1</objname>
+		<parent>Formamsl1.Grid1.Column8</parent>
+		<properties>FontSize = 8
+Caption = "Total"
+Name = "Header1"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3K20PCL04</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column8</parent>
+		<properties>BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B70ZIMPA</uniqueid>
+		<timestamp>1182237928</timestamp>
+		<class>header</class>
+		<classloc/>
+		<baseclass>header</baseclass>
+		<objname>Orden</objname>
+		<parent>Formamsl1.Grid1.Column9</parent>
+		<properties>FontSize = 8
+Alignment = 2
+Caption = "Orden"
+Name = "Orden"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_4B70ZIMPB</uniqueid>
+		<timestamp>1183471442</timestamp>
+		<class>textbox</class>
+		<classloc/>
+		<baseclass>textbox</baseclass>
+		<objname>Text1</objname>
+		<parent>Formamsl1.Grid1.Column9</parent>
+		<properties>FontSize = 8
+BorderStyle = 0
+Margin = 0
+ReadOnly = .T.
+ForeColor = 0,0,0
+BackColor = 255,255,255
+Name = "Text1"
+</properties>
+		<protected/>
+		<methods>PROCEDURE KeyPress
+LPARAMETERS nKeyCode, nShiftAltCtrl
+
+If nKeycode = 13
+	
+	Sele tempg
+	cFolio =''
+
+	cFolio = padl(allt(tempg.numdoc),10)
+
+	Doform('Requi1',2,recno(), cFolio)
+
+ENDIF
+ENDPROC
+</methods>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGG</uniqueid>
+		<timestamp>1079590761</timestamp>
+		<class>leeprov</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leeprov1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 52
+Left = 3
+Width = 426
+Height = 20
+ZOrderSet = 11
+Name = "Leeprov1"
+NumProv.Name = "NumProv"
+bProv.Name = "bProv"
+NomProv.Height = 20
+NomProv.Left = 155
+NomProv.Top = 0
+NomProv.Width = 271
+NomProv.Name = "NomProv"
+Label20.Name = "Label20"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>WINDOWS</platform>
+		<uniqueid>_3FW0H4CGH</uniqueid>
+		<timestamp>1182295308</timestamp>
+		<class>leealm</class>
+		<classloc>..\..\msllib60\apolo.vcx</classloc>
+		<baseclass>container</baseclass>
+		<objname>Leealm1</objname>
+		<parent>Formamsl1</parent>
+		<properties>Top = 73
+Left = 32
+Name = "Leealm1"
+NumAlm.Name = "NumAlm"
+NomAlm.Name = "NomAlm"
+Label8.Name = "Label8"
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1/>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+	<record>
+		<platform>COMMENT</platform>
+		<uniqueid>RESERVED</uniqueid>
+		<timestamp>0</timestamp>
+		<class/>
+		<classloc/>
+		<baseclass/>
+		<objname/>
+		<parent/>
+		<properties>Arial, 0, 9, 5, 15, 12, 32, 3, 0
+Arial, 0, 8, 5, 14, 11, 29, 3, 0
+</properties>
+		<protected/>
+		<methods/>
+		<objcode/>
+		<ole/>
+		<ole2/>
+		<reserved1></reserved1>
+		<reserved2/>
+		<reserved3/>
+		<reserved4/>
+		<reserved5/>
+		<reserved6/>
+		<reserved7/>
+		<reserved8/>
+		<user/>
+	</record>
+</VFPData>
